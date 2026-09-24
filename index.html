@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#153e37" />
+    <title>Disc With Friends · The Field</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <canvas id="game" aria-label="3D disc golf practice field"></canvas>
+    <header>
+      <div class="brand">
+        <span class="disc-icon">◎</span>
+        <div>
+          DISC WITH FRIENDS<small>THE FIELD <i> / </i> MECHANICS LAB 01</small>
+        </div>
+      </div>
+      <div class="top-actions">
+        <span id="wind">STILL AIR</span
+        ><button id="tune">Tuning <kbd>T</kbd></button
+        ><button id="help">Controls <kbd>?</kbd></button>
+      </div>
+    </header>
+    <section id="target">
+      <span class="eyebrow">PRACTICE BASKET</span
+      ><strong id="distance">55 <small>m</small></strong
+      ><span id="throws">0 throws</span>
+    </section>
+    <div id="reticle"><span></span></div>
+    <div id="status">Find your line.</div>
+    <section id="readout">
+      <div class="angle-labels">
+        <span>HYZER</span><b id="angleText">FLAT</b><span>ANHYZER</span>
+      </div>
+      <div class="bank-track"><span id="bankNeedle"></span></div>
+      <div class="power-track"><span id="powerFill"></span></div>
+      <p id="gesture">Move to aim · Hold right to tilt · Pull left to throw</p>
+    </section>
+    <aside id="result" hidden>
+      <span class="eyebrow" id="resultTitle">SHOT COMPLETE</span
+      ><strong id="resultDistance"></strong>
+      <p id="resultDetail"></p>
+      <button id="again">Re-throw <kbd>R</kbd></button
+      ><button id="lie">Play from here <kbd>N</kbd></button>
+    </aside>
+    <footer>
+      <span><b>01</b> ONE DISC. ENDLESS LINES.</span>
+      <div>
+        <button id="reset">Reset tee <kbd>Home</kbd></button
+        ><button id="replay">Replay <kbd>Space</kbd></button
+        ><button id="sound">Sound on</button>
+      </div>
+      <span id="phase">READY TO THROW</span>
+    </footer>
+    <div id="welcome" class="veil">
+      <article>
+        <span class="eyebrow">DISC WITH FRIENDS / PROTOTYPE 0.1</span>
+        <h1>A little angle.<br />A whole new line.</h1>
+        <p>One field. One disc. Make the flight feel right.</p>
+        <div class="instructions">
+          <div><b>01 / Aim</b><span>Move the mouse left or right.</span></div>
+          <div>
+            <b>02 / Angle</b
+            ><span
+              >Hold right mouse + move sideways.<br />Let go to keep the angle.
+              Flat snaps gently.</span
+            >
+          </div>
+          <div>
+            <b>03 / Draw & release</b
+            ><span
+              >Hold left mouse. Pull toward you.<br />Release to throw. Your aim
+              stays locked.</span
+            >
+          </div>
+        </div>
+        <button id="start" class="primary">
+          Step onto the field <span>↗</span></button
+        ><small
+          >Desktop + mouse · Esc cancels / releases cursor · R re-throws<br />Click
+          the field to capture your cursor again.</small
+        >
+      </article>
+    </div>
+    <aside id="panel" hidden>
+      <div class="panel-head">
+        <div>
+          <span class="eyebrow">FLIGHT WORKBENCH</span>
+          <h2>Find the feel.</h2>
+        </div>
+        <button id="closeTune">✕</button>
+      </div>
+      <p>
+        Changes apply to the next throw. Re-throw to compare. Saved on this
+        browser.
+      </p>
+      <div id="sliders"></div>
+      <button id="defaults">Restore defaults</button
+      ><button id="export">Export shot + tuning</button
+      ><small
+        >R: new attempt · Space: identical replay<br />Wind X = right; Wind Z =
+        downfield. m/s.<br />Right-handed backhand convention.</small
+      >
+    </aside>
+    <script type="module" src="src/main.js"></script>
+  </body>
+</html>
