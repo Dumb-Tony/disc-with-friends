@@ -152,10 +152,19 @@ export function collideBasket(s, old, target, dt) {
         return;
       }
       if (vn < 0) {
-        const bounce = (1 + hit.restitution) * vn;
+        // Chains cushion the pole behind them. Exposed metal still rebounds.
+        const cushioned =
+          hit.part === "post" &&
+          p.y > shape.chainBottom &&
+          s.time - (s.lastChainTime ?? -10) < 0.65;
+        const bounce = (1 + (cushioned ? 0 : hit.restitution)) * vn;
         s.vx = (s.vx - bounce * hit.normal.x) * 0.91;
         s.vy = (s.vy - bounce * hit.normal.y) * 0.91;
         s.vz = (s.vz - bounce * hit.normal.z) * 0.91;
+        if (cushioned) {
+          s.vx *= 0.35;
+          s.vz *= 0.35;
+        }
         if (s.phase !== "flight" && s.vy > 0.2) s.phase = "flight";
       }
       if (speed > 0.5 && s.time - (s.lastMetalTime ?? -1) > 0.055) {
@@ -174,14 +183,19 @@ export function collideBasket(s, old, target, dt) {
         offset = Math.abs(p.x * s.vz - p.z * s.vx) / Math.max(horizontal, 0.01);
       const central = 1 - clamp(offset / 0.62, 0, 1),
         speed = Math.hypot(s.vx, s.vy, s.vz);
-      const retain =
-        0.18 + 0.55 * (1 - central) + 0.42 * clamp((speed - 12) / 18, 0, 1);
+      // A yielding curtain carries the disc inward while absorbing momentum.
+      // Central strikes engage several strands; edge clips retain their speed.
+      const coverage = clamp((central - 0.15) / 0.65, 0, 1);
+      const softRetain = Math.min(0.65, 3.5 / Math.max(horizontal, 0.01));
+      const edgeRetain = 0.78 + 0.12 * clamp((speed - 12) / 18, 0, 1);
+      const retain = edgeRetain + (softRetain - edgeRetain) * coverage;
       s.vx *= retain;
       s.vz *= retain;
       s.vy = Math.min(s.vy * 0.28, -0.25);
       s.bank *= 0.4;
       s.spin *= 0.72;
       s.chainTouched = true;
+      s.lastChainTime = s.time;
       s.chainCooldown = 0.3;
       s.event = "chains";
       return;

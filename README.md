@@ -40,3 +40,6 @@ See [design](docs/DESIGN.md), [architecture and tuning](docs/ARCHITECTURE.md), a
 Push to `main`: GitHub Actions runs mechanics tests, packages only browser assets, then deploys GitHub Pages. The public link above is the preferred playtest entry point. Relative URLs work under the repository subpath. No runtime analytics, external font requests, remote scripts or backend.
 
 The complete source design conversation is preserved in `private/design-conversation.md` locally, ignored by Git. Public design documentation records the accepted decisions and future direction without publishing the conversation itself.
+
+
+Chain catch feel: central strikes engage several strands and retain forward motion capped at 3.5 m/s, letting the disc enter the curtain. A pole contact within 0.65 seconds of a chain strike, above the lower chain attachment, absorbs normal velocity instead of rebounding; exposed pole and rim contacts remain rigid. Edge clips retain more momentum and can miss. Scoring still waits for a retained tray landing. These are deterministic feel coefficients in src/basket-collision.js, not a full flexible-body simulation.

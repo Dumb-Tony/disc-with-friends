@@ -70,10 +70,16 @@ test("chain contact damps first, then drops onto tray before scoring", () => {
   assert.equal(s.scored, true);
   assert.equal(s.phase, "rest");
 });
-test("fast and wide chain shots can reject instead of being magnetic catches", () => {
-  const fast = direct({ y: 1.65, vz: 28 }, defaults);
-  assert.ok(fast.s.chainTouched);
-  assert.equal(fast.s.scored, false);
+test("central chains absorb firm throws without pole kick-outs", () => {
+  for (const vz of [7, 10, 16, 22, 28]) {
+    const shot = direct({ y: 1.65, vz }, defaults);
+    assert.ok(shot.s.chainTouched);
+    assert.equal(shot.s.scored, true, "center speed " + vz);
+    assert.equal(shot.events[0].event, "chains");
+    assert.equal(shot.events[0].scored, false);
+  }
+});
+test("wide chain clips are not magnetic catches", () => {
   const wide = direct({ x: 0.65, y: 1.65, vz: 12 }, defaults);
   assert.equal(wide.s.scored, false);
 });
