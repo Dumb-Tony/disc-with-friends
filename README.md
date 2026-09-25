@@ -50,3 +50,9 @@ Pine Gate opens Sunny Pines, a nine-hole par-34 nature course. See [course guide
 
 
 Near-vertical throws now pan and turn through inversion, with speed/spin-dependent turnover and distinct upside-down slides versus edge rolls. [Video references and modeling limits](docs/FLIGHT-REFERENCES.md).
+
+
+## Disc bag and woodland pass
+Press **1** for Nest (putter: short, straight approaches and softer landings), **2** for Fieldwork (midrange: the original balanced flight), or **3** for Kestrel (driver: longer carries, stronger finish, less forgiving at low power). Choose before starting the draw. Each has its own color and stamp; selection persists. Tuning adjusts the shared baseline, and Space restores the exact original disc and flight coefficients. These are arcade profiles rather than replicas of commercial discs. Real-world inspiration: [Innova flight ratings](https://www.innovadiscs.com/home/disc-golf-faq/flight-ratings-system/).
+
+The visual pass adds textured boughs and stones, moving water highlights, denser broadleaf woodland, undergrowth, warm longer shadows and layered mist. Sun shafts and environment reflections are real-time approximations, not hardware ray tracing.

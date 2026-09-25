@@ -536,3 +536,79 @@ td {
     width: 130px;
   }
 }
+
+#bag {
+  position: absolute;
+  left: 32px;
+  top: 240px;
+  width: 220px;
+  background: #173d32df;
+  padding: 15px;
+  border-radius: 12px;
+}
+#discBag {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+}
+#discBag button {
+  text-align: left;
+  border-left: 4px solid var(--disc-color);
+  font-size: 12px;
+  padding: 8px;
+}
+#discBag button[aria-pressed="true"] {
+  background: #49604a;
+  border-color: var(--disc-color);
+}
+#discBag button:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+#discHint {
+  font-size: 11px;
+  line-height: 1.5;
+  margin-bottom: 0;
+  color: #e1e5c9;
+}
+@media (max-width: 850px) {
+  #bag {
+    width: 165px;
+    left: 16px;
+    top: 230px;
+  }
+}
+
+#target {
+  background: #f0f0d5df;
+  padding: 16px 20px;
+  border-radius: 12px;
+}
+#bag {
+  top: 285px;
+}
+#holeGuide {
+  box-shadow: 0 12px 40px #082e2530;
+}
+@media (max-height: 740px) {
+  #target {
+    padding: 10px 16px;
+  }
+  #bag {
+    top: 260px;
+    width: 175px;
+  }
+  #discBag {
+    gap: 3px;
+  }
+  #discHint {
+    font-size: 10px;
+  }
+}
+
+.brand {
+  background: #f0f0d5e8;
+  padding: 10px 14px;
+  border-radius: 10px;
+}

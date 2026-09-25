@@ -11,11 +11,21 @@ export function addCourse(parent, materials, hole = openingHole) {
     scene.add(m);
     return m;
   };
-  const needles = new THREE.MeshStandardMaterial({
-    color: "#365f38",
-    roughness: 1,
-    flatShading: true,
-  });
+  const needles = materials.needles;
+  const bough = (radius, height) => {
+    const geo = new THREE.ConeGeometry(radius, height, 24, 8),
+      p = geo.attributes.position;
+    for (let i = 0; i < p.count; i++) {
+      const x = p.getX(i),
+        y = p.getY(i),
+        z = p.getZ(i),
+        a = Math.atan2(z, x);
+      const f = 0.93 + 0.07 * Math.sin(a * 9 + y * 7);
+      p.setXYZ(i, x * f, y, z * f);
+    }
+    geo.computeVertexNormals();
+    return geo;
+  };
   for (const t of trees) {
     add(
       new THREE.CylinderGeometry(
@@ -31,11 +41,7 @@ export function addCourse(parent, materials, hole = openingHole) {
     );
     for (let tier = 0; tier < 5; tier++) {
       add(
-        new THREE.ConeGeometry(
-          t.width * (1 - tier * 0.155),
-          t.height * 0.38,
-          16,
-        ),
+        bough(t.width * (1 - tier * 0.155), t.height * 0.38),
         needles,
         t.x,
         t.height * (0.35 + tier * 0.135),
@@ -89,15 +95,8 @@ export function addCourse(parent, materials, hole = openingHole) {
   );
   green.rotation.x = -Math.PI / 2;
   green.castShadow = false;
-  const water = new THREE.MeshStandardMaterial({
-    color: "#438f9a",
-    roughness: 0.24,
-    metalness: 0.35,
-  });
-  const shore = new THREE.MeshStandardMaterial({
-    color: "#b8aa78",
-    roughness: 1,
-  });
+  const water = materials.water,
+    shore = materials.shore;
   for (const w of hole.water) {
     for (const [mat, extra, y] of [
       [shore, 0.55, 0.008],
@@ -109,11 +108,7 @@ export function addCourse(parent, materials, hole = openingHole) {
       m.castShadow = false;
     }
   }
-  const stone = new THREE.MeshStandardMaterial({
-    color: "#858b80",
-    roughness: 1,
-    flatShading: true,
-  });
+  const stone = materials.stone;
   for (const r of hole.rocks) {
     const m = add(new THREE.SphereGeometry(1, 16, 10), stone, r.x, 0, r.z);
     m.scale.set(r.radius, r.height, r.radius);

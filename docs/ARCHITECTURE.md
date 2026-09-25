@@ -56,3 +56,9 @@ The shared maxBank constant in config.js permits ±90° releases in input, the H
 
 ## Nature course / round lifecycle
 Main now passes the active hole (pin plus environment) to the isolated simulation. Legacy tree-array arguments remain supported for mechanic fixtures. course.js is shared by rendering, collisions and the minimap. environment.js sweeps for water and ellipsoid rock contacts. round.js owns the nine scores, stroke/penalty counts, progression and validated local saves. Replays restore pre-shot counts before applying their results. Saved rounds checkpoint only settled shots and transitions. Dynamic scene objects are disposed on hole changes; grass instances are hidden inside water. See NATURE-COURSE.md for round controls and full-route regressions.
+
+
+## Woodland rendering and disc profiles
+surfaces.js creates seeded foliage, stone, shore and water-normal textures. woodland.js adds instanced broadleaf trees, shrubs/flowers and soft transparent sun shafts outside the authored fairways. It reloads behind the active green, using the existing dynamic resource disposal. Sun shafts are artistic transparent volumes; reflections use the existing environment map. No path tracer or hardware ray tracing is present.
+
+discs.js contains three renderer-independent profiles. discConfig copies base tuning and applies profile multipliers at release. Driver glide/fade also respond to throw power. main.js freezes the resulting coefficients and disc ID in lastShot, so changing selection or base tuning cannot change an airborne disc or its replay. Midrange preserves all original coefficients and course fixtures. New profiles use the same collision size. Selection locks during draw and flight, persists separately, and works via 1/2/3 or buttons.

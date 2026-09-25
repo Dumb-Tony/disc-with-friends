@@ -1,3 +1,4 @@
+import { surfaceMaterials } from "./surfaces.js";
 import { basketShape, chainLayout } from "./basket-shape.js";
 import * as THREE from "../vendor/three.module.js";
 
@@ -57,7 +58,7 @@ export function createMaterials() {
   const grass = texture(
     512,
     (ctx, s, r) => {
-      ctx.fillStyle = "#638b3c";
+      ctx.fillStyle = "#527b45";
       ctx.fillRect(0, 0, s, s);
       for (let i = 0; i < 25000; i++) {
         const x = r() * s,
@@ -107,12 +108,13 @@ export function createMaterials() {
     }
   });
   return {
+    ...surfaceMaterials(),
     grass: new THREE.MeshStandardMaterial({
       map: grass,
-      color: "#b4c3a1",
+      color: "#83a78a",
       roughness: 1,
       bumpMap: grass,
-      bumpScale: 0.025,
+      bumpScale: 0.07,
     }),
     cream: new THREE.MeshStandardMaterial({
       color: "#f6ebbf",
@@ -163,10 +165,10 @@ export function createMaterials() {
 export function addLighting(scene, renderer) {
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.0;
-  scene.fog = new THREE.Fog("#c4d6c0", 120, 290);
-  scene.add(new THREE.HemisphereLight(0xc8e2ff, 0x647039, 1.0));
-  const sun = new THREE.DirectionalLight(0xffefcf, 2.6);
-  sun.position.set(-38, 65, -32);
+  scene.fog = new THREE.FogExp2("#86b8a5", 0.006);
+  scene.add(new THREE.HemisphereLight(0xc8e2ff, 0x52613a, 0.65));
+  const sun = new THREE.DirectionalLight(0xffdda6, 3.1);
+  sun.position.set(-48, 40, -32);
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
   Object.assign(sun.shadow.camera, {
@@ -181,7 +183,7 @@ export function addLighting(scene, renderer) {
   sun.shadow.bias = -0.00012;
   sun.shadow.radius = 2;
   scene.add(sun, sun.target);
-  const fill = new THREE.DirectionalLight(0xd1e9ff, 0.55);
+  const fill = new THREE.DirectionalLight(0xc9ddff, 0.35);
   fill.position.set(40, 20, 50);
   scene.add(fill);
   const faces = [];
@@ -208,7 +210,7 @@ export function addLighting(scene, renderer) {
   const pmrem = new THREE.PMREMGenerator(renderer),
     environment = pmrem.fromCubemap(env);
   scene.environment = environment.texture;
-  scene.environmentIntensity = 0.35;
+  scene.environmentIntensity = 0.6;
   pmrem.dispose();
   env.dispose();
   const sky = new THREE.Mesh(
@@ -219,7 +221,7 @@ export function addLighting(scene, renderer) {
       vertexShader:
         "varying vec3 direction; void main(){direction=position; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}",
       fragmentShader:
-        "varying vec3 direction; void main(){vec3 d=normalize(direction);float h=max(d.y,0.);vec3 col=mix(vec3(.42,.57,.57),vec3(.08,.28,.48),pow(h,.55));float glow=pow(max(dot(d,normalize(vec3(-.48,.8,-.4))),0.),70.);col+=vec3(.22,.17,.08)*glow;gl_FragColor=vec4(col,1.); #include <tonemapping_fragment>\n #include <colorspace_fragment>\n}",
+        "varying vec3 direction; void main(){vec3 d=normalize(direction);float h=max(d.y,0.);vec3 col=mix(vec3(.67,.73,.64),vec3(.10,.32,.56),pow(h,.55));float glow=pow(max(dot(d,normalize(vec3(-.68,.57,-.46))),0.),70.);col+=vec3(.55,.33,.10)*glow;gl_FragColor=vec4(col,1.); #include <tonemapping_fragment>\n #include <colorspace_fragment>\n}",
     }),
   );
   sky.material.fragmentShader = sky.material.fragmentShader.replace(
@@ -230,7 +232,11 @@ export function addLighting(scene, renderer) {
   return sun;
 }
 
-export function createDisc(materials) {
+export function createDisc(
+  materials,
+  definition = { name: "Fieldwork", type: "Midrange", color: "#ee612e" },
+) {
+  materials.disc.color.set(definition.color);
   const disc = new THREE.Group(),
     spin = new THREE.Group();
   disc.add(spin);
@@ -276,7 +282,7 @@ export function createDisc(materials) {
     ctx.stroke();
     ctx.textAlign = "center";
     ctx.font = "800 83px Segoe UI";
-    ctx.fillText("FIELDWORK", 0, -165);
+    ctx.fillText(definition.name.toUpperCase(), 0, -165);
     ctx.font = "600 33px Segoe UI";
     ctx.fillText("DISC WITH FRIENDS", 0, -105);
     ctx.beginPath();
@@ -292,7 +298,7 @@ export function createDisc(materials) {
     ctx.fillText("01", 0, 122);
     ctx.fillStyle = "#ffe4a2";
     ctx.font = "600 30px Segoe UI";
-    ctx.fillText("STRAIGHT • GLIDE • PLAY", 0, 251);
+    ctx.fillText(definition.type.toUpperCase() + " • SUNNY PINES", 0, 251);
     for (let i = 0; i < 36; i++) {
       const a = (i / 36) * Math.PI * 2;
       ctx.beginPath();
@@ -607,58 +613,6 @@ export function addLandscape(scene, materials) {
   blades.receiveShadow = true;
   scene.add(blades);
 
-  const trunkGeo = new THREE.CylinderGeometry(0.22, 0.42, 1, 9),
-    trunks = new THREE.InstancedMesh(trunkGeo, materials.bark, 56);
-  const foliageGeo = new THREE.ConeGeometry(1, 1, 11, 3);
-  const positions = foliageGeo.attributes.position;
-  // Irregular layered bough edges keep the pines from reading as traffic cones.
-  for (let i = 0; i < positions.count; i++) {
-    const y = positions.getY(i),
-      x = positions.getX(i),
-      z = positions.getZ(i);
-    const wobble = 1 + 0.09 * Math.sin(Math.atan2(z, x) * 7 + y * 13);
-    positions.setXYZ(i, x * wobble, y, z * wobble);
-  }
-  foliageGeo.computeVertexNormals();
-  const foliage = new THREE.InstancedMesh(
-    foliageGeo,
-    new THREE.MeshStandardMaterial({
-      color: "#ffffff",
-      roughness: 0.92,
-      flatShading: true,
-    }),
-    56 * 5,
-  );
-  for (let i = 0; i < 56; i++) {
-    const side = i % 2 ? 1 : -1,
-      x = side * (43 + r() * 27),
-      z = -22 + Math.floor(i / 2) * 6.7 + r() * 5,
-      height = 6 + r() * 7,
-      width = 2.2 + r() * 1.8;
-    dummy.position.set(x, height * 0.29, z);
-    dummy.scale.set(1, height * 0.58, 1);
-    dummy.rotation.set(0, r() * Math.PI, 0);
-    dummy.updateMatrix();
-    trunks.setMatrixAt(i, dummy.matrix);
-    for (let tier = 0; tier < 5; tier++) {
-      const f = 1 - tier * 0.155;
-      dummy.position.set(x, height * (0.35 + tier * 0.135), z);
-      dummy.scale.set(width * f, height * 0.38, width * f);
-      dummy.rotation.set(0, tier * 0.65 + i * 0.7, 0);
-      dummy.updateMatrix();
-      foliage.setMatrixAt(i * 5 + tier, dummy.matrix);
-      color.setHSL(
-        0.28 + r() * 0.045,
-        0.32 + r() * 0.1,
-        0.2 + tier * 0.018 + r() * 0.025,
-      );
-      color.convertSRGBToLinear();
-      foliage.setColorAt(i * 5 + tier, color);
-    }
-  }
-  trunks.castShadow = trunks.receiveShadow = true;
-  foliage.castShadow = foliage.receiveShadow = true;
-  scene.add(trunks, foliage);
   return { tee, blades };
 }
 

@@ -1,3 +1,8 @@
+import { discs, discById, discConfig } from "./discs.js";
+let selectedDisc = "midrange";
+try {
+  selectedDisc = discById(localStorage.getItem("dwf-disc-v1")).id;
+} catch {}
 import { course, holes } from "./course.js";
 import { Round, scoreName } from "./round.js";
 const round = new Round();
@@ -60,10 +65,17 @@ function throwDisc(spec, replay = false) {
     ? lastShot
     : {
         spec: { ...spec, lie: { ...lie } },
-        config: { ...config },
+        config: discConfig(config, selectedDisc, spec.power),
+        discId: selectedDisc,
         before: round.strokes,
         penalties: round.penalties,
       };
+  selectedDisc = lastShot.discId || "midrange";
+  try {
+    localStorage.setItem("dwf-disc-v1", selectedDisc);
+  } catch {}
+  view.setDisc(discById(selectedDisc));
+  updateBag();
   shotConfig = { ...lastShot.config };
   lie = { ...lastShot.spec.lie };
   input.aim = lastShot.spec.aim;
@@ -121,6 +133,8 @@ function panel(open) {
   if (open) document.exitPointerLock?.();
 }
 function updateHUD() {
+  for (const button of $("discBag").querySelectorAll("button"))
+    button.disabled = !!shot || input.mode !== "aim" || round.holed;
   const dist = Math.hypot(round.hole.pin.x - lie.x, round.hole.pin.z - lie.z);
   $("distance").innerHTML = `${dist.toFixed(0)} <small>m</small>`;
   $("throws").textContent =
@@ -291,6 +305,8 @@ addEventListener("keydown", (e) => {
     !["KeyS", "KeyT", "Escape"].includes(e.code)
   )
     return;
+  if (["Digit1", "Digit2", "Digit3"].includes(e.code))
+    selectDisc(discs[Number(e.code.slice(-1)) - 1].id);
   if (e.code === "KeyR") reset(true);
   if (e.code === "Home") {
     e.preventDefault();
@@ -569,7 +585,38 @@ try {
   }
 } catch {}
 updateHole();
-
+function updateBag() {
+  for (const b of $("discBag").querySelectorAll("button"))
+    b.setAttribute("aria-pressed", String(b.dataset.disc === selectedDisc));
+  $("discHint").textContent = discById(selectedDisc).hint;
+}
+function selectDisc(id) {
+  if (shot || round.holed || input.mode !== "aim") return;
+  selectedDisc = discById(id).id;
+  view.setDisc(discById(selectedDisc));
+  updateBag();
+  try {
+    localStorage.setItem("dwf-disc-v1", selectedDisc);
+  } catch {}
+}
+$("discBag").innerHTML = discs
+  .map(
+    (d, i) =>
+      '<button data-disc="' +
+      d.id +
+      '" style="--disc-color:' +
+      d.color +
+      '"><kbd>' +
+      (i + 1) +
+      "</kbd> " +
+      d.type +
+      "</button>",
+  )
+  .join("");
+for (const b of $("discBag").querySelectorAll("button"))
+  b.onclick = () => selectDisc(b.dataset.disc);
+view.setDisc(discById(selectedDisc));
+updateBag();
 requestAnimationFrame(frame);
 // Read-only diagnostic snapshots for browser regressions; no production input shortcuts.
 window.discLab = {
@@ -582,6 +629,7 @@ window.discLab = {
       round: round.serialize(lie),
       hole: round.hole,
       config,
+      selectedDisc,
       lastShot,
       finished,
       completedShot,

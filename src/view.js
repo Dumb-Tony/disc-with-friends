@@ -1,3 +1,4 @@
+import { addWoodland } from "./woodland.js";
 import { addCourse } from "./course-view.js";
 import { ChainStrand } from "./chain-motion.js";
 import * as THREE from "../vendor/three.module.js";
@@ -72,7 +73,12 @@ export class FieldView {
   }
   loadHole(hole) {
     const shared = new Set(Object.values(this.mats));
-    for (const group of [this.courseGroup, this.basket, this.marker]) {
+    for (const group of [
+      this.courseGroup,
+      this.basket,
+      this.marker,
+      this.woodland,
+    ]) {
       if (!group) continue;
       this.scene.remove(group);
       const geometries = new Set(),
@@ -102,6 +108,7 @@ export class FieldView {
       }
       blades.instanceMatrix.needsUpdate = true;
     }
+    this.woodland = addWoodland(this.scene, this.mats, hole);
     this.target = hole.pin;
     this.courseGroup = addCourse(this.scene, this.mats, hole);
     const visual = createBasket(this.mats, hole.id);
@@ -126,6 +133,21 @@ export class FieldView {
     this.camera.position.set(0, 3, -5);
     this.look.set(hole.pin.x * 0.1, 1.5, 15);
     if (this.trace) this.resetTrace();
+  }
+  setDisc(definition) {
+    if (this.discId === definition.id) return;
+    this.discId = definition.id;
+    const shared = new Set(Object.values(this.mats));
+    this.scene.remove(this.disc);
+    this.disc.traverse((o) => {
+      o.geometry?.dispose();
+      if (o.material && !shared.has(o.material)) {
+        o.material.map?.dispose();
+        o.material.dispose();
+      }
+    });
+    this.disc = createDisc(this.mats, definition);
+    this.scene.add(this.disc);
   }
   onBasketImpact(impact) {
     if (!impact || impact.kind !== "chains") return;
@@ -300,8 +322,10 @@ export class FieldView {
     // Keep the useful shadow region around the shot, snapped to reduce shimmer.
     const sx = Math.round(this.disc.position.x * 16) / 16;
     const sz = Math.round(this.disc.position.z * 16) / 16;
-    this.sun.position.set(sx - 38, 65, sz - 32);
+    this.sun.position.set(sx - 48, 40, sz - 32);
     this.sun.target.position.set(sx, 0, sz);
+    this.mats.water.normalMap.offset.x += dt * 0.009;
+    this.mats.water.normalMap.offset.y += dt * 0.005;
     this.renderer.render(this.scene, this.camera);
   }
 }
