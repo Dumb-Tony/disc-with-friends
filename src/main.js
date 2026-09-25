@@ -1,5 +1,12 @@
 import { hole, trees } from "./course.js";
-import { defaults, ranges, FIXED_DT, basket, clamp } from "./config.js";
+import {
+  defaults,
+  ranges,
+  FIXED_DT,
+  basket,
+  clamp,
+  maxBank,
+} from "./config.js";
 import { launch, step } from "./physics.js";
 import { ThrowInput } from "./input.js";
 import { FieldView } from "./view.js";
@@ -105,7 +112,7 @@ function updateHUD() {
     Math.abs(input.bank) < 0.01
       ? "FLAT"
       : `${Math.abs((input.bank * 180) / Math.PI).toFixed(0)}° ${input.bank < 0 ? "HYZER" : "ANHYZER"}`;
-  $("bankNeedle").style.left = `${50 + (input.bank / (Math.PI / 4)) * 50}%`;
+  $("bankNeedle").style.left = `${50 + (input.bank / maxBank) * 50}%`;
   $("bankNeedle").style.transform =
     `translateX(-50%) rotate(${(-input.bank * 180) / Math.PI}deg)`;
   const pitchDegrees = Math.round((input.pitch * 180) / Math.PI);

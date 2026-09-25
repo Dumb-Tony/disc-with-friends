@@ -9,7 +9,7 @@ A 55 m par 3: thread a narrow pine gate or take the broad mown flank. Land, line
 | Action | Input |
 | --- | --- |
 | Aim horizontally and vertically | Move mouse left/right and up/down |
-| Set hyzer / flat / anhyzer | Hold right mouse and move sideways; release to keep angle |
+| Set hyzer / flat / anhyzer | Hold right mouse and move sideways up to ±90°; release to keep angle |
 | Draw power | Hold left mouse and pull toward you (down); push forward to reduce |
 | Throw | Release left mouse |
 | Cancel draw | Right mouse or Esc |

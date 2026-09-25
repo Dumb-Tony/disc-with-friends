@@ -57,7 +57,13 @@ test("flat power progression is useful; hyzer left and anhyzer right", () => {
 });
 test("all supported shots settle finitely with no ground penetration", () => {
   for (const power of [0.02, 0.3, 0.7, 1])
-    for (const bank of [-Math.PI / 4, 0, Math.PI / 4])
+    for (const bank of [
+      -Math.PI / 2,
+      -Math.PI / 4,
+      0,
+      Math.PI / 4,
+      Math.PI / 2,
+    ])
       for (const windX of [-8, 0, 8]) {
         const { state, path } = simulate(
           { power, bank },
@@ -96,4 +102,38 @@ test("120Hz tick results are independent of render frame grouping", () => {
   };
   assert.deepEqual(run(30), run(60));
   assert.deepEqual(run(60), run(144));
+});
+
+test("bank reaches either vertical limit, reverses immediately, and stays locked for release", () => {
+  for (const sign of [-1, 1]) {
+    const input = new ThrowInput();
+    input.down(2);
+    input.move(sign * 1000, 0);
+    assert.equal(input.bank, (sign * Math.PI) / 2);
+    input.move(-sign * 10, 0);
+    assert.ok(Math.abs(input.bank) < Math.PI / 2);
+    input.move(sign * 10, 0);
+    input.up(2);
+    input.down(0);
+    input.move(80, 160);
+    const spec = input.up(0);
+    assert.equal(spec.bank, (sign * Math.PI) / 2);
+    const shot = launch(spec);
+    step(shot, defaults, FIXED_DT, null);
+    assert.ok(
+      Math.abs(shot.bank) > 1.55,
+      "first tick must not snap back to the old cap",
+    );
+  }
+});
+test("high vertical releases settle and replay deterministically", () => {
+  for (const bank of [-Math.PI / 2, Math.PI / 2]) {
+    const spec = { bank, pitch: (55 * Math.PI) / 180, power: 0.8 };
+    const a = simulate(spec, defaults, null),
+      b = simulate(spec, defaults, null);
+    assert.deepEqual(a, b);
+    assert.equal(a.state.phase, "rest");
+    assert.ok(a.path.every((s) => Number.isFinite(s.y) && s.y >= 0.12));
+    assert.ok(a.state.time < 45);
+  }
 });

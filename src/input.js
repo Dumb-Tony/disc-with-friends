@@ -1,4 +1,4 @@
-import { clamp, defaults, pitchLimits } from "./config.js";
+import { clamp, defaults, pitchLimits, maxBank } from "./config.js";
 export class ThrowInput {
   constructor() {
     this.aim = 0;
@@ -14,11 +14,7 @@ export class ThrowInput {
       this.draw = clamp(this.draw + dy, 0, 240);
       this.power = this.draw / 240;
     } else if (this.mode === "angle") {
-      this.rawBank = clamp(
-        this.rawBank + dx * 0.005,
-        -Math.PI / 4,
-        Math.PI / 4,
-      );
+      this.rawBank = clamp(this.rawBank + dx * 0.005, -maxBank, maxBank);
       this.bank = Math.abs(this.rawBank) < 0.055 ? 0 : this.rawBank;
     } else if (this.mode === "aim") {
       this.aim -= dx * 0.0025;

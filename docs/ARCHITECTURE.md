@@ -49,3 +49,6 @@ Chain catch feel: central strikes engage several strands and retain forward moti
 
 
 Course data lives in src/course.js, shared by course-view.js and course-collision.js. Main passes the tree list into the pure fixed-step simulation; isolated physics/basket tests can omit obstacles. Swept contacts distinguish hard trunks from yielding foliage, once per canopy entry. The completedShot diagnostic retains the last landing after automatic lie advancement. Hole restart clears score and replay history.
+
+
+The shared maxBank constant in config.js permits ±90° releases in input, the HUD and flight. Vertical releases have near-zero upward lift and strong lateral lift, then can roll when they hit the ground. This extends the existing arcade model; it does not simulate a full inverted hammer turnover. Pitch still chooses the upward launch direction independently.

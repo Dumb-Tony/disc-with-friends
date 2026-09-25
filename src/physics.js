@@ -1,6 +1,13 @@
 import { collideCourse } from "./course-collision.js";
 import { collideBasket } from "./basket-collision.js";
-import { defaults, FIXED_DT, clamp, basket, pitchLimits } from "./config.js";
+import {
+  defaults,
+  FIXED_DT,
+  clamp,
+  basket,
+  pitchLimits,
+  maxBank,
+} from "./config.js";
 export function launch(
   { aim = 0, pitch, bank = 0, power = 0.7, lie = { x: 0, z: 0 } },
   config = defaults,
@@ -58,8 +65,8 @@ export function step(
     const stability = clamp(45 / Math.max(s.spin, 15), 0.5, 1.25);
     s.bank = clamp(
       s.bank + (c.turn * high - c.fade * late) * stability * dt,
-      -1.3,
-      1.3,
+      -maxBank,
+      maxBank,
     );
     const lift = Math.min(c.lift * airSpeed * airSpeed, c.gravity * 1.22);
     const side = -Math.sin(s.bank) * lift;

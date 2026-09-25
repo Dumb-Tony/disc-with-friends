@@ -34,3 +34,5 @@ export const pitchLimits = Object.freeze({
 export const FIXED_DT = 1 / 120;
 export const basket = { x: 0, z: 55 };
 export const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+export const maxBank = Math.PI / 2;
