@@ -15,8 +15,9 @@ test("all nine authored routes play from tee to chains without teleporting or pe
     const h = holes[route.hole - 1];
     let lie = { x: 0, z: 0 };
     for (const [i, shot] of route.shots.entries()) {
-      assert.deepEqual(shot.spec.lie, lie);
-      const { state: s } = simulate(shot.spec, defaults, h.pin, h);
+      // Recorded Windows coordinates can differ by a few ULPs on Linux.
+      assert.ok(Math.hypot(shot.spec.lie.x-lie.x,shot.spec.lie.z-lie.z)<1e-8);
+      const { state: s } = simulate({...shot.spec,lie}, defaults, h.pin, h);
       assert.ok(!s.hazard);
       assert.equal(!!s.scored, i === route.shots.length - 1);
       lie = { x: s.x, z: s.z };
