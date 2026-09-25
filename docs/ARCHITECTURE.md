@@ -26,3 +26,9 @@ The input model has no time-based accuracy factor. Moving forward during the dra
 ## Deployment
 
 Vendored Three.js 0.180.0 (MIT license included). No build step required for browser assets. GitHub Actions tests then uploads an explicit `site` directory containing only index, CSS, src and vendor. Private conversation, node_modules, tests and diagnostic screenshots never enter the deployed site. Repository-relative imports support GitHub Pages project URLs.
+
+## Visual pass 0.2
+
+`src/visuals.js` owns procedural materials, molded disc geometry and stamp, linked-chain basket, turf and pine instancing, sky/reflection lighting and soft contact shadow. Textures are generated locally from fixed seeds; no remote art dependencies. Decoration has no collision or flight authority. Chain response remains visual, driven by the existing catch event. Grass and foliage use instancing to limit draw calls. The moving sunlight shadow region follows the disc; only rendering is affected.
+
+Run `node scripts/visual-review.mjs` against the local server (or set TEST_URL) to capture isolated disc/basket close-ups and report shader console errors and rendering counts. Its temporary inspection page is intercepted only by the test browser and is not shipped as a game mode.
