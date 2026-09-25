@@ -49,3 +49,6 @@ Basket metal must be physical: lower and upper tray rims, wire tray, pole and to
 
 ## First playable hole (user-approved scope)
 Pine Gate is now hole 01, a 55 m par 3. A narrow central pine gate offers a direct aggressive line; a broad mown left flank offers a safe two-shot approach. Nine authored trees use shared visible/collision dimensions; trunks deflect and foliage absorbs speed. No water penalty or elaborate course content in this first hole. Missed shots automatically advance to their settled lie, face the basket and reset bank. Only holing out shows a completion panel. R/Home restart the hole; Space remains an exact shot replay for testing.
+
+
+Overhand behavior now uses selected instructional-video references (FLIGHT-REFERENCES.md): ±90° remains the release limit, while flight may roll through inversion, pan and return. Power and automatic spin influence turnover timing. Top-down slides, shallow rim rollers and steep impacts are distinct; no accuracy randomness or extra controls.

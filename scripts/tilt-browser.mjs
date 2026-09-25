@@ -30,6 +30,15 @@ await page.mouse.up();
 s = await page.evaluate(() => discLab.snapshot());
 assert.equal(s.lastShot.spec.bank, Math.PI / 2);
 await page.waitForFunction(
+  () => {
+    const s = discLab.snapshot().shot;
+    return s?.phase === "flight" && Math.abs(s.bank) > Math.PI;
+  },
+  {},
+  { timeout: 15000 },
+);
+await page.screenshot({ path: "artifacts/overhand-inverted-flight.png" });
+await page.waitForFunction(
   () => discLab.snapshot().completedShot !== null,
   {},
   { timeout: 30000 },
@@ -58,6 +67,6 @@ assert.equal(
 );
 assert.deepEqual(errors, []);
 console.log(
-  "Vertical tilt browser pass: ±90° input, bounded HUD, raised vertical release, landing and identical replay.",
+  "Vertical tilt browser pass: ±90° input, bounded HUD, raised vertical release, airborne inversion, landing and identical replay.",
 );
 await browser.close();

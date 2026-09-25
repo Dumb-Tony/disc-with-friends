@@ -1,3 +1,4 @@
+import { overhandAmount, overhandResponse } from "./overhand.js";
 import { collideCourse } from "./course-collision.js";
 import { collideBasket } from "./basket-collision.js";
 import {
@@ -27,6 +28,8 @@ export function launch(
     vy: speed * Math.sin(loft),
     vz: Math.cos(aim) * speed * Math.cos(loft),
     bank,
+    overhand: overhandAmount(bank),
+    overhandSide: Math.sign(bank) || 1,
     spin: 20 + 70 * p,
     time: 0,
     phase: "flight",
@@ -63,17 +66,24 @@ export function step(
     const high = clamp((airSpeed - 17) / 10, 0, 1),
       late = 1 - clamp((airSpeed - 9) / 12, 0, 1);
     const stability = clamp(45 / Math.max(s.spin, 15), 0.5, 1.25);
-    s.bank = clamp(
-      s.bank + (c.turn * high - c.fade * late) * stability * dt,
-      -maxBank,
-      maxBank,
-    );
+    const overhead = overhandResponse(s, airSpeed);
+    const normalRate = (c.turn * high - c.fade * late) * stability;
+    const bankRate =
+      normalRate * (1 - overhead.amount) + overhead.rollRate * overhead.amount;
+    const flightLimit = maxBank + Math.PI * overhead.amount;
+    if (!s.chainTouched)
+      s.bank = clamp(s.bank + bankRate * dt, -flightLimit, flightLimit);
     const lift = Math.min(c.lift * airSpeed * airSpeed, c.gravity * 1.22);
-    const side = -Math.sin(s.bank) * lift;
+    const side = -Math.sin(s.bank) * lift * overhead.sideScale;
     s.vx += ((side * az) / Math.max(airSpeed, 0.01) - c.drag * speed * ax) * dt;
     s.vz +=
       ((-side * ax) / Math.max(airSpeed, 0.01) - c.drag * speed * az) * dt;
-    s.vy += (lift * Math.cos(s.bank) - c.gravity - c.drag * speed * s.vy) * dt;
+    const up = Math.cos(s.bank);
+    s.vy +=
+      (lift * up * (up < 0 ? overhead.invertedScale : 1) -
+        c.gravity -
+        c.drag * speed * s.vy) *
+      dt;
   } else {
     const decel = c.friction * (s.phase === "roll" ? 0.7 : 1),
       next = Math.max(0, groundSpeed - decel * dt),
@@ -88,7 +98,9 @@ export function step(
     }
     s.vx *= ratio;
     s.vz *= ratio;
-    s.bank *= Math.exp(-dt * (s.phase === "roll" ? 0.3 : 5));
+    const flat = Math.cos(s.bank) < 0 ? Math.sign(s.bank) * Math.PI : 0;
+    s.bank =
+      flat + (s.bank - flat) * Math.exp(-dt * (s.phase === "roll" ? 0.3 : 5));
     s.vy = 0;
     if (next < 0.18) {
       s.phase = "rest";
@@ -105,11 +117,30 @@ export function step(
   if (s.y < 0.12 && s.phase === "flight") {
     s.y = 0.12;
     s.carry ||= Math.hypot(s.x - s.origin.x, s.z - s.origin.z);
-    if (Math.abs(s.bank) > 1.0 && groundSpeed > 3) {
+    // A steep edge/top impact digs in instead of becoming a long roller or skip.
+    if (
+      s.overhand > 0.5 &&
+      s.vy < -7 &&
+      (Math.abs(Math.sin(s.bank)) > 0.8 || Math.cos(s.bank) < 0)
+    ) {
+      s.vx *= 0.35;
+      s.vz *= 0.35;
+    }
+    if (
+      Math.abs(Math.sin(s.bank)) > Math.sin(1) &&
+      groundSpeed > 3 &&
+      (!s.overhand || s.vy > -7)
+    ) {
       s.phase = "roll";
       s.vy = 0;
       s.event = "roll";
-    } else if (groundSpeed > 6 && s.vy < -0.6 && s.skips < 3) {
+    } else if (
+      groundSpeed > 6 &&
+      s.vy < -0.6 &&
+      s.skips < 3 &&
+      (!s.overhand || s.vy > -7) &&
+      Math.cos(s.bank) >= 0
+    ) {
       s.vy = Math.min(2.8, -s.vy * c.skip);
       s.vx *= 0.73;
       s.vz *= 0.73;

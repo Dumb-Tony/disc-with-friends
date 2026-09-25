@@ -45,3 +45,6 @@ Chain catch feel: central strikes engage several strands and retain forward moti
 
 
 Pine Gate: first playable 55 m par 3, with physical pine obstacles and a mown safe flank. Non-scoring landings automatically advance to the next throw. R or Home restarts the hole; Space replays the previous throw. The completion card appears only on a successful basket.
+
+
+Near-vertical throws now pan and turn through inversion, with speed/spin-dependent turnover and distinct upside-down slides versus edge rolls. [Video references and modeling limits](docs/FLIGHT-REFERENCES.md).
