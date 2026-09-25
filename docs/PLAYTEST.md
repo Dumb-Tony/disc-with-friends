@@ -32,3 +32,7 @@ Aim low at either tray ring: the disc should ricochet, with metal audio, instead
 
 
 Pine Gate route checks: from default tee, aim 0.3 radians toward the open flank and draw 50%; this gives a clear lay-up. From the resulting lie, aim 0.03 radians left of the automatic basket aim and draw 50% for a tested birdie approach. Straight ahead at 213/240 power is a precise ace fixture; aim 0.1 radians at 50% hits the gate trees. The course browser test uses actual mouse events to complete the flank route, restart, ace the gate and recover automatically from a tree hit. These fixtures validate reachable routes, not human difficulty or feel.
+
+
+## Full nature round
+Play all nine Sunny Pines holes in order. Check each basket updates the scorecard, Next hole starts at the new tee and the ninth basket shows the par-34 round total. R/Home must preserve earlier holes. Refresh after a landing and after completing the round to verify Resume. Test individual-hole practice from the menu. Throw into Willow Brook: one throw plus one penalty, immediate drop-zone lie; Space must reproduce it without doubling penalties. Compare the minimap water and rocks with the visible geometry. Automated coverage: node scripts/nature-browser.mjs; TEST_URL targets a deployed build.

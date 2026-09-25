@@ -52,3 +52,7 @@ Course data lives in src/course.js, shared by course-view.js and course-collisio
 
 
 The shared maxBank constant in config.js permits ±90° releases in input, the HUD and flight. Vertical releases have near-zero upward lift and strong lateral lift, then can roll when they hit the ground. Airborne overhand orientation now continues through inversion using the tunable response in overhand.js; see FLIGHT-REFERENCES.md for references and limits. Pitch still chooses the upward launch direction independently.
+
+
+## Nature course / round lifecycle
+Main now passes the active hole (pin plus environment) to the isolated simulation. Legacy tree-array arguments remain supported for mechanic fixtures. course.js is shared by rendering, collisions and the minimap. environment.js sweeps for water and ellipsoid rock contacts. round.js owns the nine scores, stroke/penalty counts, progression and validated local saves. Replays restore pre-shot counts before applying their results. Saved rounds checkpoint only settled shots and transitions. Dynamic scene objects are disposed on hole changes; grass instances are hidden inside water. See NATURE-COURSE.md for round controls and full-route regressions.

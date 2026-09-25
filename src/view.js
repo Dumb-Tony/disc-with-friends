@@ -1,7 +1,7 @@
 import { addCourse } from "./course-view.js";
 import { ChainStrand } from "./chain-motion.js";
 import * as THREE from "../vendor/three.module.js";
-import { basket } from "./config.js";
+import { hole as openingHole, inWater } from "./course.js";
 import {
   createMaterials,
   addLighting,
@@ -31,13 +31,7 @@ export class FieldView {
     this.sun = addLighting(this.scene, this.renderer);
     this.mats = createMaterials();
     addLandscape(this.scene, this.mats);
-    addCourse(this.scene, this.mats);
-    const basketVisual = createBasket(this.mats);
-    this.basket = basketVisual.group;
-    this.basket.position.set(basket.x, 0, basket.z);
-    this.chains = basketVisual.chains;
-    this.scene.add(this.basket);
-    this.label("01", 0, 3.3, 55);
+    this.loadHole(openingHole);
     this.disc = createDisc(this.mats);
     this.scene.add(this.disc);
     this.shadow = contactShadow();
@@ -75,6 +69,63 @@ export class FieldView {
     this.linkTwist = new THREE.Quaternion();
     addEventListener("resize", () => this.resize());
     this.resize();
+  }
+  loadHole(hole) {
+    const shared = new Set(Object.values(this.mats));
+    for (const group of [this.courseGroup, this.basket, this.marker]) {
+      if (!group) continue;
+      this.scene.remove(group);
+      const geometries = new Set(),
+        materials = new Set();
+      group.traverse((o) => {
+        if (o.geometry) geometries.add(o.geometry);
+        if (o.material)
+          for (const m of Array.isArray(o.material) ? o.material : [o.material])
+            if (!shared.has(m)) materials.add(m);
+      });
+      for (const g of geometries) g.dispose();
+      for (const m of materials) {
+        if (m.map && !Object.values(this.mats).some((s) => s.map === m.map))
+          m.map.dispose();
+        m.dispose();
+      }
+    }
+    const blades = this.scene.getObjectByName("fieldGrass");
+    if (blades) {
+      const original = blades.userData.originalMatrices,
+        m = new THREE.Matrix4();
+      for (let i = 0; i < blades.count; i++) {
+        m.fromArray(original, i * 16);
+        if (inWater(m.elements[12], m.elements[14], hole.water, 0.6))
+          m.scale(new THREE.Vector3(0, 0, 0));
+        blades.setMatrixAt(i, m);
+      }
+      blades.instanceMatrix.needsUpdate = true;
+    }
+    this.target = hole.pin;
+    this.courseGroup = addCourse(this.scene, this.mats, hole);
+    const visual = createBasket(this.mats, hole.id);
+    this.basket = visual.group;
+    this.chains = visual.chains;
+    this.basket.position.set(hole.pin.x, 0, hole.pin.z);
+    this.scene.add(this.basket);
+    this.marker = this.label(
+      String(hole.id).padStart(2, "0"),
+      hole.pin.x,
+      3.3,
+      hole.pin.z,
+    );
+    this.chainAccumulator = 0;
+    this.chainModels = this.chains.map(
+      (chain) =>
+        new ChainStrand(
+          chain.userData.layout.top,
+          chain.userData.layout.bottom,
+        ),
+    );
+    this.camera.position.set(0, 3, -5);
+    this.look.set(hole.pin.x * 0.1, 1.5, 15);
+    if (this.trace) this.resetTrace();
   }
   onBasketImpact(impact) {
     if (!impact || impact.kind !== "chains") return;
@@ -140,6 +191,7 @@ export class FieldView {
     s.position.set(x, y, z);
     s.scale.set(3.8, 1.42, 1);
     this.scene.add(s);
+    return s;
   }
   resize() {
     this.renderer.setSize(innerWidth, innerHeight);
@@ -200,7 +252,7 @@ export class FieldView {
         this.disc.children[0].rotation.y += dt * shot.spin;
       const isRest = shot.phase === "rest",
         follow = v(shot.vx, 0, shot.vz);
-      if (isRest) follow.set(basket.x - shot.x, 0, basket.z - shot.z);
+      if (isRest) follow.set(this.target.x - shot.x, 0, this.target.z - shot.z);
       if (follow.length() < 0.1) follow.copy(forward);
       follow.normalize();
       const launchCam = v(lie.x, 2.7, lie.z).addScaledVector(forward, -4.3),

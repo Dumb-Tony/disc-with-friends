@@ -4,30 +4,43 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="theme-color" content="#153e37" />
-    <title>Disc With Friends · Pine Gate</title>
+    <title>Disc With Friends · Sunny Pines</title>
     <link rel="icon" href="data:," />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <canvas id="game" aria-label="Pine Gate disc golf hole"></canvas>
+    <canvas id="game" aria-label="Sunny Pines disc golf course"></canvas>
     <header>
       <div class="brand">
         <span class="disc-icon">◎</span>
         <div>
-          DISC WITH FRIENDS<small>PINE GATE <i> / </i> HOLE 01</small>
+          DISC WITH FRIENDS<small id="courseName">SUNNY PINES / NATURE</small>
         </div>
       </div>
       <div class="top-actions">
         <span id="wind">STILL AIR</span
         ><button id="tune">Tuning <kbd>T</kbd></button
-        ><button id="help">Controls <kbd>?</kbd></button>
+        ><button id="scoreButton">Scorecard <kbd>S</kbd></button
+        ><button id="help">Menu <kbd>?</kbd></button>
       </div>
     </header>
     <section id="target">
-      <span class="eyebrow">HOLE 01 · PAR 3</span
+      <span class="eyebrow" id="holeLabel">HOLE 01 · PAR 3</span
       ><strong id="distance">55 <small>m</small></strong
       ><span id="throws">0 throws</span>
     </section>
+    <aside id="holeGuide">
+      <h2 id="holeName"></h2>
+      <p id="holeHint"></p>
+      <canvas
+        id="map"
+        width="200"
+        height="200"
+        aria-label="Hole map: orange is you, gold is the basket, blue is water"
+      ></canvas
+      ><small>● You &nbsp; ◆ Basket &nbsp; Blue: water</small>
+    </aside>
+    <div id="toast" hidden></div>
     <div id="reticle"><span></span></div>
     <div id="status">Find your line.</div>
     <section id="readout">
@@ -48,7 +61,7 @@
       <button id="again">Play again <kbd>R</kbd></button>
     </aside>
     <footer>
-      <span><b>01</b> PINE GATE · 55 m · PAR 3</span>
+      <span id="footerHole"></span>
       <div>
         <button id="reset">Restart hole <kbd>R</kbd></button
         ><button id="replay">Replay <kbd>Space</kbd></button
@@ -58,12 +71,12 @@
     </footer>
     <div id="welcome" class="veil">
       <article>
-        <span class="eyebrow">DISC WITH FRIENDS / PROTOTYPE 0.1</span>
-        <h1>A little angle.<br />A whole new line.</h1>
+        <span class="eyebrow">SUNNY PINES / NINE HOLES / PAR 34</span>
+        <h1>Find your line.<br />Nine ways home.</h1>
         <p>
-          Thread the pine gate for a shot at the basket, or follow the wide mown
-          fairway on the left. Trees knock discs down. Every landing sets up
-          your next throw automatically.
+          Play a complete nature round through pine gates, winding streams,
+          ponds and stone greens. Water adds one stroke and moves you to a
+          marked drop zone. Every landing sets up your next throw automatically.
         </p>
         <div class="instructions">
           <div>
@@ -89,11 +102,19 @@
           </div>
         </div>
         <button id="start" class="primary">
-          Play Pine Gate <span>↗</span></button
+          Play Sunny Pines <span>↗</span></button
         ><small
           >Desktop + mouse · Esc cancels / releases cursor · R / Home restarts
           the hole<br />Click the field to capture your cursor again.</small
         >
+        <div class="mode-options">
+          <button id="newRound">New nature round</button
+          ><label
+            >Practice a hole
+            <select id="practiceHole"></select></label
+          ><button id="practice">Practice →</button
+          ><span>Playground · Silly courses coming next</span>
+        </div>
       </article>
     </div>
     <aside id="panel" hidden>
@@ -116,6 +137,26 @@
         downfield. m/s.<br />Right-handed backhand convention.</small
       >
     </aside>
+    <div id="scorecard" class="veil" hidden>
+      <article>
+        <button id="closeScore">Close ✕</button>
+        <h2>Sunny Pines scorecard</h2>
+        <p id="scoreTotal"></p>
+        <table>
+          <thead>
+            <tr>
+              <th>Hole</th>
+              <th>Name</th>
+              <th>Length</th>
+              <th>Par</th>
+              <th>Strokes</th>
+              <th>Penalty</th>
+            </tr>
+          </thead>
+          <tbody id="scoreRows"></tbody>
+        </table>
+      </article>
+    </div>
     <script type="module" src="src/main.js"></script>
   </body>
 </html>

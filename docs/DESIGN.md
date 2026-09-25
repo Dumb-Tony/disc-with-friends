@@ -52,3 +52,7 @@ Pine Gate is now hole 01, a 55 m par 3. A narrow central pine gate offers a dire
 
 
 Overhand behavior now uses selected instructional-video references (FLIGHT-REFERENCES.md): ±90° remains the release limit, while flight may roll through inversion, pan and return. Power and automatic spin influence turnover timing. Top-down slides, shallow rim rollers and steep impacts are distinct; no accuracy randomness or extra controls.
+
+
+## Nine-hole nature mode (user-approved scope)
+The user approved expanding the mechanics into two course families. Sunny Pines now implements a complete nine-hole nature round (par 34), with trees, streams, ponds and rocks. Difficulty varies between precision par 3s and placement-focused par 4s/5s. Saved progress, scorecards and individual-hole practice support repeated playtesting. This supersedes the earlier one-hole/3–6-hole scope. Whimsical miniature-golf courses remain the next phase. See NATURE-COURSE.md for the layouts and rules.

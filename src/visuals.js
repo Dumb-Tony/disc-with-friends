@@ -321,7 +321,7 @@ export function createDisc(materials) {
   return disc;
 }
 
-export function createBasket(materials) {
+export function createBasket(materials, number = 1) {
   const group = new THREE.Group(),
     chains = [];
   const steel = materials.metal;
@@ -395,7 +395,7 @@ export function createBasket(materials) {
       ctx.fillStyle = "#f5d876";
       ctx.font = "800 175px Segoe UI";
       ctx.textAlign = "center";
-      ctx.fillText("01", s / 2, 190);
+      ctx.fillText(String(number).padStart(2, "0"), s / 2, 190);
     });
     const plate = mesh(
       group,
@@ -459,7 +459,7 @@ export function createBasket(materials) {
     ctx.fillStyle = "#294735";
     ctx.font = "900 130px Segoe UI";
     ctx.textAlign = "center";
-    ctx.fillText("01", 128, 175);
+    ctx.fillText(String(number).padStart(2, "0"), 128, 175);
   });
   const flagGeo = new THREE.PlaneGeometry(0.5, 0.28, 10, 2),
     pos = flagGeo.attributes.position;
@@ -507,7 +507,7 @@ export function addLandscape(scene, materials) {
     -0.03,
   ).rotation.x = -Math.PI / 2;
   // Gentle mowing bands, visible at distance while the fine texture handles closeups.
-  for (let z = -20; z < 160; z += 16) {
+  for (let z = -20; z < 208; z += 16) {
     const band = mesh(
       scene,
       new THREE.PlaneGeometry(68, 8),
@@ -587,7 +587,7 @@ export function addLandscape(scene, materials) {
   const color = new THREE.Color();
   for (let i = 0; i < 15000; i++) {
     let x = (r() - 0.5) * 120,
-      z = -20 + r() * 160;
+      z = -20 + r() * 220;
     if (Math.abs(x) < 25) {
       if (i % 3 !== 0) x += Math.sign(x || 1) * 30;
     }
@@ -602,6 +602,8 @@ export function addLandscape(scene, materials) {
     color.convertSRGBToLinear();
     blades.setColorAt(i, color);
   }
+  blades.name = "fieldGrass";
+  blades.userData.originalMatrices = blades.instanceMatrix.array.slice();
   blades.receiveShadow = true;
   scene.add(blades);
 

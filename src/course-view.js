@@ -1,6 +1,9 @@
 import * as THREE from "../vendor/three.module.js";
-import { trees } from "./course.js";
-export function addCourse(scene, materials) {
+import { hole as openingHole } from "./course.js";
+export function addCourse(parent, materials, hole = openingHole) {
+  const scene = new THREE.Group();
+  parent.add(scene);
+  const trees = hole.trees;
   const add = (geo, mat, x, y, z) => {
     const m = new THREE.Mesh(geo, mat);
     m.position.set(x, y, z);
@@ -48,12 +51,9 @@ export function addCourse(scene, materials) {
     depthWrite: false,
     roughness: 1,
   });
-  const path = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(0, 0, 0),
-    new THREE.Vector3(8, 0, 19),
-    new THREE.Vector3(9, 0, 34),
-    new THREE.Vector3(0, 0, 55),
-  ]);
+  const path = new THREE.CatmullRomCurve3(
+    hole.route.map(([x, z]) => new THREE.Vector3(x, 0, z)),
+  );
   const vertices = [],
     indices = [];
   for (let i = 0; i <= 80; i++) {
@@ -80,7 +80,71 @@ export function addCourse(scene, materials) {
   const m = new THREE.Mesh(geo, fairway);
   m.receiveShadow = true;
   scene.add(m);
-  const green = add(new THREE.CircleGeometry(6, 64), fairway, 0, 0.006, 55);
+  const green = add(
+    new THREE.CircleGeometry(6, 64),
+    fairway,
+    hole.pin.x,
+    0.006,
+    hole.pin.z,
+  );
   green.rotation.x = -Math.PI / 2;
   green.castShadow = false;
+  const water = new THREE.MeshStandardMaterial({
+    color: "#438f9a",
+    roughness: 0.24,
+    metalness: 0.35,
+  });
+  const shore = new THREE.MeshStandardMaterial({
+    color: "#b8aa78",
+    roughness: 1,
+  });
+  for (const w of hole.water) {
+    for (const [mat, extra, y] of [
+      [shore, 0.55, 0.008],
+      [water, 0, 0.025],
+    ]) {
+      const m = add(new THREE.CircleGeometry(1, 48), mat, w.x, y, w.z);
+      m.rotation.x = -Math.PI / 2;
+      m.scale.set(w.rx + extra, w.rz + extra, 1);
+      m.castShadow = false;
+    }
+  }
+  const stone = new THREE.MeshStandardMaterial({
+    color: "#858b80",
+    roughness: 1,
+    flatShading: true,
+  });
+  for (const r of hole.rocks) {
+    const m = add(new THREE.SphereGeometry(1, 16, 10), stone, r.x, 0, r.z);
+    m.scale.set(r.radius, r.height, r.radius);
+  }
+  const drops = new Map(
+    hole.water.map((w) => [JSON.stringify(w.drop), w.drop]),
+  );
+  for (const d of drops.values()) {
+    const m = add(
+      new THREE.RingGeometry(0.65, 0.85, 32),
+      shore,
+      d.x,
+      0.035,
+      d.z,
+    );
+    m.rotation.x = -Math.PI / 2;
+    m.castShadow = false;
+    const post = add(
+      new THREE.CylinderGeometry(0.07, 0.07, 0.7, 8),
+      materials.bark,
+      d.x + 1,
+      0.35,
+      d.z,
+    );
+    add(
+      new THREE.BoxGeometry(0.45, 0.3, 0.06),
+      shore,
+      post.position.x,
+      0.68,
+      d.z,
+    );
+  }
+  return scene;
 }

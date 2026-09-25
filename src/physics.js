@@ -1,3 +1,4 @@
+import { collideEnvironment } from "./environment.js";
 import { overhandAmount, overhandResponse } from "./overhand.js";
 import { collideCourse } from "./course-collision.js";
 import { collideBasket } from "./basket-collision.js";
@@ -111,7 +112,9 @@ export function step(
   s.x += s.vx * dt;
   s.y += s.vy * dt;
   s.z += s.vz * dt;
-  collideCourse(s, old, obstacles);
+  collideCourse(s, old, Array.isArray(obstacles) ? obstacles : obstacles.trees);
+  collideEnvironment(s, old, obstacles);
+  if (s.hazard) return s;
   collideBasket(s, old, target, dt);
   if (s.phase === "rest") return s;
   if (s.y < 0.12 && s.phase === "flight") {
