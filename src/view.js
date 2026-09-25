@@ -114,26 +114,46 @@ export class FieldView {
     const aim = input.aim,
       forward = v(Math.sin(aim), 0, Math.cos(aim)),
       right = v(-Math.cos(aim), 0, Math.sin(aim));
+    const pitch = input.pitch ?? (10 * Math.PI) / 180;
+    const launchDirection = forward.clone().multiplyScalar(Math.cos(pitch));
+    launchDirection.y = Math.sin(pitch);
+    const pitchOffset = pitch - (10 * Math.PI) / 180;
     let desired, look;
     this.arrow.visible = !shot;
-    this.arrow.position.set(lie.x, 0.065, lie.z + 0.1);
-    this.arrow.setDirection(forward);
+    this.arrow.position.set(lie.x, 1.35, lie.z);
+    this.arrow.setDirection(launchDirection);
+    this.arrow.setLength(
+      pitch < 0 ? Math.min(4, 1.25 / -Math.sin(pitch)) : 4,
+      0.5,
+      0.22,
+    );
     if (!shot) {
-      const pos = v(lie.x, 1.18, lie.z)
-        .addScaledVector(right, 0.48)
+      const pos = v(
+        lie.x,
+        1.18 + Math.sin(pitchOffset) * (pitchOffset > 0 ? 2.4 : 1),
+        lie.z,
+      )
+        .addScaledVector(right, 1.05)
         .addScaledVector(forward, 0.45 - input.power * 0.9);
       this.disc.position.copy(pos);
-      this.disc.rotation.set(0, aim, input.bank);
+      this.disc.rotation.set(-pitch, aim, input.bank, "YXZ");
       this.disc.children[0].rotation.y = 0;
       desired = v(lie.x, 2.7, lie.z).addScaledVector(
         forward,
         -4.3 - input.power * 0.22,
       );
-      look = v(lie.x, 1.5, lie.z).addScaledVector(forward, 18);
+      look = v(lie.x, 1.5 + Math.tan(pitchOffset) * 12, lie.z).addScaledVector(
+        forward,
+        18,
+      );
     } else {
       this.disc.position.set(shot.x, shot.y, shot.z);
       const heading = Math.atan2(shot.vx, shot.vz);
-      this.disc.rotation.set(0, heading, shot.bank);
+      const flightPitch =
+        shot.phase === "flight"
+          ? Math.atan2(shot.vy, Math.hypot(shot.vx, shot.vz))
+          : 0;
+      this.disc.rotation.set(-flightPitch, heading, shot.bank, "YXZ");
       if (shot.phase !== "rest")
         this.disc.children[0].rotation.y += dt * shot.spin;
       const isRest = shot.phase === "rest",
@@ -168,6 +188,16 @@ export class FieldView {
     this.camera.position.lerp(desired, 1 - Math.exp(-dt * 4));
     this.look.lerp(look, 1 - Math.exp(-dt * 6));
     this.camera.lookAt(this.look);
+    if (!shot) {
+      const reticle = document.getElementById("reticle");
+      const sight = v(lie.x, 1.35, lie.z)
+        .addScaledVector(launchDirection, 20)
+        .project(this.camera);
+      if (reticle) {
+        reticle.style.left = `${(sight.x * 0.5 + 0.5) * innerWidth}px`;
+        reticle.style.top = `${(-sight.y * 0.5 + 0.5) * innerHeight}px`;
+      }
+    }
     this.shadow.position.set(this.disc.position.x, 0.008, this.disc.position.z);
     const height = this.disc.position.y;
     this.shadow.scale.setScalar(1 + height * 0.06);

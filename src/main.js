@@ -12,6 +12,7 @@ try {
   for (const [key, [min, max]] of Object.entries(ranges))
     if (Number.isFinite(saved[key])) config[key] = clamp(saved[key], min, max);
 } catch {}
+input.pitch = (config.launchLoft * Math.PI) / 180;
 let view;
 try {
   view = new FieldView($("game"));
@@ -40,6 +41,7 @@ function reset(tee = false) {
   if (tee) {
     lie = { x: 0, z: 0 };
     input.aim = 0;
+    input.pitch = (config.launchLoft * Math.PI) / 180;
     input.bank = input.rawBank = 0;
     count = 0;
   }
@@ -52,6 +54,8 @@ function throwDisc(spec, replay = false) {
   shotConfig = { ...lastShot.config };
   lie = { ...lastShot.spec.lie };
   input.aim = lastShot.spec.aim;
+  input.pitch = lastShot.spec.pitch ?? (shotConfig.launchLoft * Math.PI) / 180;
+  input.bank = input.rawBank = lastShot.spec.bank;
   shot = launch(lastShot.spec, shotConfig);
   accumulator = 0;
   finished = false;
@@ -70,6 +74,7 @@ function fromLie() {
   if (shot?.phase === "rest" && !shot.scored) {
     lie = { x: shot.x, z: shot.z };
     input.aim = Math.atan2(basket.x - lie.x, basket.z - lie.z);
+    input.pitch = (config.launchLoft * Math.PI) / 180;
     reset();
   }
 }
@@ -97,6 +102,11 @@ function updateHUD() {
   $("bankNeedle").style.left = `${50 + (input.bank / (Math.PI / 4)) * 50}%`;
   $("bankNeedle").style.transform =
     `translateX(-50%) rotate(${(-input.bank * 180) / Math.PI}deg)`;
+  const pitchDegrees = Math.round((input.pitch * 180) / Math.PI);
+  $("pitchText").textContent =
+    pitchDegrees === 0
+      ? "LEVEL · 0°"
+      : `${pitchDegrees > 0 ? "UP ↑" : "DOWN ↓"} ${Math.abs(pitchDegrees)}°`;
   $("powerFill").style.width = `${input.power * 100}%`;
   $("reticle").hidden = !!shot;
   $("readout").hidden = !!shot;
@@ -113,10 +123,10 @@ function updateHUD() {
         : "READY TO THROW";
   $("gesture").textContent =
     input.mode === "draw"
-      ? "Aim locked · Pull down for power · Release to send"
+      ? "Direction locked · Pull down for power · Release to send"
       : input.mode === "angle"
         ? "Move sideways to tilt · Release to keep this angle"
-        : "Move to aim · Hold right to tilt · Pull left to throw";
+        : "Move ↔ ↕ to aim · Hold right to bank · Pull left to throw";
   $("status").textContent = shot
     ? shot.scored
       ? "Chains!"
@@ -226,7 +236,7 @@ const labels = {
   fade: "Late-flight fade",
   spinDecay: "Spin decay",
   maxSpeed: "Full-power speed",
-  launchLoft: "Automatic loft",
+  launchLoft: "Starting pitch (Home / next lie)",
   skip: "Ground bounce",
   friction: "Ground friction",
   windX: "Crosswind",

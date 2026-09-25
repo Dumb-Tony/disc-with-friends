@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { launch, step, simulate } from "../src/physics.js";
-import { defaults, FIXED_DT } from "../src/config.js";
+import { defaults, FIXED_DT, pitchLimits } from "../src/config.js";
 import { ThrowInput } from "../src/input.js";
 test("moving mouse right aims right in the +Z-facing camera", () => {
   const i = new ThrowInput();
@@ -10,7 +10,7 @@ test("moving mouse right aims right in the +Z-facing camera", () => {
   assert.ok(launch({ aim: i.aim }).vx < 0);
 });
 test("identical initial conditions reproduce every sampled state", () => {
-  const spec = { aim: 0.2, bank: 0.3, power: 0.8 };
+  const spec = { aim: 0.2, pitch: 0.5, bank: 0.3, power: 0.8 };
   assert.deepEqual(simulate(spec), simulate(spec));
 });
 test("power gesture locks aim and bank, supports backing off, then releases once", () => {
@@ -20,14 +20,16 @@ test("power gesture locks aim and bank, supports backing off, then releases once
   i.move(30, 0);
   i.up(2);
   const aim = i.aim,
+    pitch = i.pitch,
     bank = i.bank;
   i.down(0);
   i.move(90, 200);
   assert.equal(i.aim, aim);
   assert.equal(i.bank, bank);
+  assert.equal(i.pitch, pitch);
   i.move(-80, -80);
   assert.equal(i.power, 0.5);
-  assert.deepEqual(i.up(0), { aim, bank, power: 0.5 });
+  assert.deepEqual(i.up(0), { aim, pitch, bank, power: 0.5 });
   assert.equal(i.up(0), null);
 });
 test("neutral snap can be entered and left; RMB cancels a drawn throw", () => {

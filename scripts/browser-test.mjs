@@ -16,15 +16,23 @@ await page.screenshot({ path: "artifacts/welcome.png" });
 await page.click("#start");
 await page.waitForTimeout(200);
 await page.mouse.move(720, 500);
+await page.keyboard.press("Home");
+const basePitch = (await page.evaluate(() => discLab.snapshot())).input.pitch;
+await page.mouse.move(720, 430, { steps: 7 });
+assert.ok(
+  (await page.evaluate(() => discLab.snapshot())).input.pitch > basePitch,
+);
 await page.mouse.down({ button: "right" });
-await page.mouse.move(765, 500, { steps: 5 });
+await page.mouse.move(765, 430, { steps: 5 });
 await page.mouse.up({ button: "right" });
 let before = await page.evaluate(() => discLab.snapshot());
 await page.mouse.down();
-await page.mouse.move(825, 690, { steps: 15 });
+await page.mouse.move(825, 620, { steps: 15 });
 let drawing = await page.evaluate(() => discLab.snapshot());
 assert.equal(drawing.input.aim, before.input.aim);
 assert.equal(drawing.input.bank, before.input.bank);
+assert.equal(drawing.input.pitch, before.input.pitch);
+await page.screenshot({ path: "artifacts/pitch-draw.png" });
 assert.ok(drawing.input.power > 0.5);
 await page.mouse.up();
 await page.waitForTimeout(1800);
@@ -54,6 +62,7 @@ await page.keyboard.press("KeyN");
 let next = await page.evaluate(() => discLab.snapshot());
 assert.equal(next.lie.x, first.shot.x);
 assert.equal(next.shot, null);
+assert.equal(next.input.pitch, Math.PI / 18);
 await page.keyboard.press("Home");
 await page.keyboard.press("KeyT");
 assert.equal(await page.locator("#panel").isVisible(), true);
@@ -83,8 +92,12 @@ await page.waitForFunction(
 );
 assert.equal((await page.evaluate(() => discLab.snapshot())).shot.scored, true);
 await page.screenshot({ path: "artifacts/basket.png" });
+await page.keyboard.press("Home");
+await page.mouse.move(720, 861, { steps: 10 });
+assert.ok((await page.evaluate(() => discLab.snapshot())).input.pitch < 0);
+await page.screenshot({ path: "artifacts/pitch-down.png" });
 assert.deepEqual(errors, []);
 console.log(
-  "Browser pass: real pointer draw + aim lock, flight, landing, exact replay, next lie, reset, tuning persistence, successful basket from tee. No page errors.",
+  "Browser pass: vertical aim + pitch lock, real pointer draw + aim lock, flight, landing, exact replay, next lie, reset, tuning persistence, successful basket from tee. No page errors.",
 );
 await browser.close();

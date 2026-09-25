@@ -27,6 +27,10 @@ export const ranges = {
   windX: [-8, 8, 0.5],
   windZ: [-8, 8, 0.5],
 };
+export const pitchLimits = Object.freeze({
+  min: (-20 * Math.PI) / 180,
+  max: (55 * Math.PI) / 180,
+});
 export const FIXED_DT = 1 / 120;
 export const basket = { x: 0, z: 55, radius: 0.58 };
 export const clamp = (n, a, b) => Math.max(a, Math.min(b, n));

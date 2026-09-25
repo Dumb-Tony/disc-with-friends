@@ -1,11 +1,15 @@
-import { defaults, FIXED_DT, clamp, basket } from "./config.js";
+import { defaults, FIXED_DT, clamp, basket, pitchLimits } from "./config.js";
 export function launch(
-  { aim = 0, bank = 0, power = 0.7, lie = { x: 0, z: 0 } },
+  { aim = 0, pitch, bank = 0, power = 0.7, lie = { x: 0, z: 0 } },
   config = defaults,
 ) {
   const p = clamp(power, 0, 1),
     speed = 4 + (config.maxSpeed - 4) * Math.pow(p, 0.82),
-    loft = (config.launchLoft * Math.PI) / 180;
+    loft = clamp(
+      Number.isFinite(pitch) ? pitch : (config.launchLoft * Math.PI) / 180,
+      pitchLimits.min,
+      pitchLimits.max,
+    );
   return {
     x: lie.x,
     y: 1.35,

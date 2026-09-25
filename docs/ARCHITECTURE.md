@@ -19,9 +19,9 @@ Lift uses squared relative horizontal airspeed, capped for arcade stability. Dra
 4. Change one value at a time and re-throw with a similar gesture. Export the shot and tuning when reporting feedback.
 5. Restore defaults to return to the committed baseline.
 
-Gravity/loft set the vertical envelope. Lift controls glide; drag governs speed loss. Turn changes the fast phase, fade the slowing phase. Spin decay controls stability loss. Skip and friction shape landings. Max speed and the power exponent inside `launch` shape the useful draw range. Input sensitivities, 240 px draw and the snap threshold live in `input.js`.
+Gravity and the selected pitch set the vertical envelope. `launchLoft` now sets the starting pitch on startup, Home and next lie; explicit shot pitch overrides it. Legacy shots without pitch retain their old launchLoft behavior. Lift controls glide; drag governs speed loss. Turn changes the fast phase, fade the slowing phase. Spin decay controls stability loss. Skip and friction shape landings. Max speed and the power exponent inside `launch` shape the useful draw range. Input sensitivities, 240 px draw and the snap threshold live in `input.js`.
 
-The input model has no time-based accuracy factor. Moving forward during the draw reduces power. Aim and bank cannot change until the draw ends or is cancelled. Focus loss, pointer-lock loss and panel opening cancel the draw to avoid accidental releases.
+The input model has no time-based accuracy factor. Moving forward during the draw reduces power. Horizontal aim, pitch and bank cannot change until the draw ends or is cancelled. Mouse up increases pitch; holding RMB edits bank alone. Pitch is stored in radians in each shot/export/replay and clamped to -20°…55°. Focus loss, pointer-lock loss and panel opening cancel the draw to avoid accidental releases.
 
 ## Deployment
 

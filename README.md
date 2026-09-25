@@ -8,7 +8,7 @@ One disc, one practice basket, one question: is throwing fun enough to build a g
 
 | Action | Input |
 | --- | --- |
-| Aim horizontally | Move mouse left/right |
+| Aim horizontally and vertically | Move mouse left/right and up/down |
 | Set hyzer / flat / anhyzer | Hold right mouse and move sideways; release to keep angle |
 | Draw power | Hold left mouse and pull toward you (down); push forward to reduce |
 | Throw | Release left mouse |
@@ -19,7 +19,7 @@ One disc, one practice basket, one question: is throwing fun enough to build a g
 | Repeat identical last shot and coefficients | Space |
 | Developer tuning | T |
 
-Click the field to capture the cursor. Esc releases it. Direction and angle lock during power draw. Flat has a small neutral snap. A full draw is 240 CSS mouse pixels; time held does not matter. Tiny clicks do not throw. Losing focus cancels a draw. The UI remains accessible after releasing the cursor.
+Click the field to capture the cursor. Esc releases it. Horizontal aim, vertical aim and bank lock during power draw. Pitch ranges from 20° down to 55° up; Home and a new lie start at 10° up. Flat has a small neutral snap. A full draw is 240 CSS mouse pixels; time held does not matter. Tiny clicks do not throw. Losing focus cancels a draw. The UI remains accessible after releasing the cursor.
 
 ## Local play
 
@@ -31,7 +31,7 @@ For development: `npm ci`, `npm test`. `npm run vendor` refreshes the pinned Thr
 
 3D practice range; 55 m basket; deterministic 120 Hz aerodynamics; bank, speed-dependent turn/fade and spin decay; skips, slides and edge rolls; fixed wind tuning; swept simplified chain catches and pole deflection; setup/flight/landing camera; shot counter; exact replay; current-lie practice; persistent tuning; downloadable shot/coefficient report; basic synthesized throw, ground and chain sounds.
 
-This is a first feel-testing build, not a finished physics simulator. Basket contacts use a forgiving geometric catch volume and speed threshold, not articulated chain physics. Far trees are scenery, not collision obstacles. There is no multiplayer, obstacle course, touch mode or elaborate art. Loft and spin are automatic. The player only chooses direction, angle and power.
+This is a first feel-testing build, not a finished physics simulator. Basket contacts use a forgiving geometric catch volume and speed threshold, not articulated chain physics. Far trees are scenery, not collision obstacles. There is no multiplayer, obstacle course, touch mode or elaborate art. Spin is automatic. Mouse up/down controls launch elevation. The player only chooses direction, angle and power.
 
 See [design](docs/DESIGN.md), [architecture and tuning](docs/ARCHITECTURE.md), and [playtest checklist](docs/PLAYTEST.md).
 

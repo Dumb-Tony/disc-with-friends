@@ -1,7 +1,8 @@
-import { clamp } from "./config.js";
+import { clamp, defaults, pitchLimits } from "./config.js";
 export class ThrowInput {
   constructor() {
     this.aim = 0;
+    this.pitch = (defaults.launchLoft * Math.PI) / 180;
     this.rawBank = 0;
     this.bank = 0;
     this.power = 0;
@@ -21,6 +22,11 @@ export class ThrowInput {
       this.bank = Math.abs(this.rawBank) < 0.055 ? 0 : this.rawBank;
     } else if (this.mode === "aim") {
       this.aim -= dx * 0.0025;
+      this.pitch = clamp(
+        this.pitch - dy * 0.0025,
+        pitchLimits.min,
+        pitchLimits.max,
+      );
     }
   }
   down(button) {
@@ -40,7 +46,12 @@ export class ThrowInput {
     if (button === 0 && this.mode === "draw") {
       const shot =
         this.power > 0.018
-          ? { aim: this.aim, bank: this.bank, power: this.power }
+          ? {
+              aim: this.aim,
+              pitch: this.pitch,
+              bank: this.bank,
+              power: this.power,
+            }
           : null;
       this.cancel();
       return shot;

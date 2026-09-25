@@ -20,3 +20,7 @@ Report what you expected, what happened, and whether the issue was input, flight
 `npm test`: deterministic sampled states; draw direction and angle lock; reversible power; neutral snap; cancellation; useful distance/angle separation; ground bounds and finite settlement over power/bank/wind combinations; edge rolling; swept basket catch/rejection/miss; 30/60/144 Hz render grouping equivalence.
 
 `node scripts/browser-test.mjs`: Chrome pointer draw/angle gesture, launch, completed landing, identical replay, next lie, tee reset, tuning persistence and page error collection. Captures welcome, flight, landing and setup screenshots locally. This is automated input playback, not manual human playtesting.
+
+## Vertical aiming
+
+Move the mouse up/down before drawing: aim from 20 degrees down to 55 degrees up. Check the elevation readout and launch-direction marker, then deliberately move vertically while holding LMB: only power should change. Holding RMB should affect bank without changing elevation. Try a high lob and a low skip at the same power. R keeps your selected elevation; Home and N return to the configured starting pitch. Replay must reproduce the original elevation. `node scripts/pitch-framing.mjs` captures both limits using real browser mouse input.

@@ -31,12 +31,15 @@
     <div id="reticle"><span></span></div>
     <div id="status">Find your line.</div>
     <section id="readout">
+      <div id="pitchText" aria-label="Launch elevation">UP ↑ 10°</div>
       <div class="angle-labels">
         <span>HYZER</span><b id="angleText">FLAT</b><span>ANHYZER</span>
       </div>
       <div class="bank-track"><span id="bankNeedle"></span></div>
       <div class="power-track"><span id="powerFill"></span></div>
-      <p id="gesture">Move to aim · Hold right to tilt · Pull left to throw</p>
+      <p id="gesture">
+        Move ↔ ↕ to aim · Hold right to bank · Pull left to throw
+      </p>
     </section>
     <aside id="result" hidden>
       <span class="eyebrow" id="resultTitle">SHOT COMPLETE</span
@@ -60,7 +63,13 @@
         <h1>A little angle.<br />A whole new line.</h1>
         <p>One field. One disc. Make the flight feel right.</p>
         <div class="instructions">
-          <div><b>01 / Aim</b><span>Move the mouse left or right.</span></div>
+          <div>
+            <b>01 / Aim</b
+            ><span
+              >Move left/right to aim sideways.<br />Move up/down to aim higher
+              or lower.</span
+            >
+          </div>
           <div>
             <b>02 / Angle</b
             ><span
