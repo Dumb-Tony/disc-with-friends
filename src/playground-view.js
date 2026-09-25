@@ -1,3 +1,4 @@
+import { candyMaterials, candyScenery } from "./candy-art.js";
 import * as T from "../vendor/three.module.js";
 import { millAngle } from "./playground-physics.js";
 export function addPlayground(scene, hole) {
@@ -15,12 +16,9 @@ export function addPlayground(scene, hole) {
     blue: "#54c9f2",
     red: "#f97870",
   };
-  const mats = Object.fromEntries(
-    Object.entries(colors).map(([k, color]) => [
-      k,
-      new T.MeshToonMaterial({ color }),
-    ]),
-  );
+  const candy = candyMaterials(colors),
+    mats = candy.mats;
+  root.userData.dispose = candy.dispose;
   const animations = [];
   function mesh(geo, mat, x, y, z, parent = root) {
     const m = new T.Mesh(geo, mats[mat] || mat);
@@ -33,7 +31,7 @@ export function addPlayground(scene, hole) {
   const box = (x, y, z, w, h, d, c, parent) =>
     mesh(new T.BoxGeometry(w, h, d), c, x, y, z, parent);
   const ball = (x, y, z, r, c, parent) =>
-    mesh(new T.SphereGeometry(r, 12, 8), c, x, y, z, parent);
+    mesh(new T.SphereGeometry(r, 24, 16), c, x, y, z, parent);
   const cyl = (x, y, z, r, h, c, parent) =>
     mesh(new T.CylinderGeometry(r, r, h, 24), c, x, y, z, parent);
   function ring(x, y, z, r, t, c, parent) {
@@ -65,7 +63,10 @@ export function addPlayground(scene, hole) {
     return sprite;
   }
   // Broad, forgiving lawn. The painted route suggests a line without invisible walls.
-  box(0, -0.48, 45, 360, 0.9, 360, "green");
+  const lawn = box(0, -0.48, 45, 360, 0.9, 360, "green");
+  const uv = lawn.geometry.getAttribute("uv");
+  for (let i = 0; i < uv.count; i++)
+    uv.setXY(i, uv.getX(i) * 60, uv.getY(i) * 60);
   const points = hole.route.map(([x, z]) => new T.Vector3(x, 0.01, z));
   const curve = new T.CatmullRomCurve3(points),
     positions = [],
@@ -84,6 +85,15 @@ export function addPlayground(scene, hole) {
   }
   const geo = new T.BufferGeometry();
   geo.setAttribute("position", new T.Float32BufferAttribute(positions, 3));
+  geo.setAttribute(
+    "uv",
+    new T.Float32BufferAttribute(
+      positions.flatMap((_, i) =>
+        i % 3 === 0 ? [positions[i] / 6, positions[i + 2] / 6] : [],
+      ),
+      2,
+    ),
+  );
   geo.setIndex(indices);
   geo.computeVertexNormals();
   mesh(geo, "mint", 0, 0, 0);
@@ -123,7 +133,7 @@ export function addPlayground(scene, hole) {
     const z = -18 + i * 5.7,
       x = (i % 2 ? -1 : 1) * (25 + 7 * Math.sin(i * 2.13)),
       h = 3 + (i % 4) * 0.8;
-    cyl(x, h / 2, z, 0.4, h, "white");
+    cyl(x, h / 2, z, 0.4, h, "cane");
     const c = ["pink", "purple", "yellow", "blue"][i % 4];
     ball(x, h + 1.3, z, 2.1, c);
     ball(x - 1.4, h + 0.8, z + 0.2, 1.4, c);
@@ -147,7 +157,7 @@ export function addPlayground(scene, hole) {
     root.add(cloud);
     cloud.position.set(x, y, z);
     for (let j = 0; j < 4; j++) {
-      const b = ball(j * 2.1 - 3, Math.sin(j) * 0.6, 0, 2.1, "white", cloud);
+      const b = ball(j * 2.1 - 3, Math.sin(j) * 0.6, 0, 2.1, "cloud", cloud);
       b.scale.set(1.5, 0.65, 1);
       b.castShadow = false;
     }
@@ -318,6 +328,7 @@ export function addPlayground(scene, hole) {
       label("POP!", o.x, 1.1, o.z + 3, "#ac6b42", 0.45);
     }
   }
+  candyScenery(root, mats, hole);
   root.userData.animate = (time) => animations.forEach((fn) => fn(time));
   return root;
 }

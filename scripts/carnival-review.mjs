@@ -9,6 +9,7 @@ const b = await chromium.launch({
 const p = await b.newPage({ viewport: { width: 1280, height: 850 } }),
   errors = [];
 p.on("pageerror", (e) => errors.push(e.message));
+p.on("console", m=>{if(m.type()==="error")errors.push(m.text());});
 try {
   await p.goto(process.env.TEST_URL || "http://127.0.0.1:43928");
   await p.click('[data-course="cloud-carnival-v1"]');
@@ -36,6 +37,9 @@ try {
   );
   await p.click('[data-course="cloud-carnival-v1"]');
   assert.equal((await p.evaluate(() => discLab.snapshot())).round.index, 8);
+  await p.setViewportSize({width:960,height:720});
+  await p.click("#start");
+  await p.waitForTimeout(300);
   assert.deepEqual(errors, []);
   console.log("Nine playground holes render; mode saves and reload verified.");
 } finally {

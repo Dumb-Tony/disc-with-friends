@@ -6,7 +6,7 @@ Share directly: https://dumb-tony.github.io/disc-with-friends/?course=cloud-carn
 
 ## Art direction
 
-Chunky original toy scenery, mint lanes, candy stripes, pastel cloud banks, bright toon shading and real-time shadows. Readable shapes take priority over woodland texture detail. Scenery frames a broad playable lawn: the painted lane is a suggested route, not an invisible corridor or out-of-bounds penalty. This is a solo first course, not multiplayer.
+Chunky original toy scenery, mint lanes, candy stripes, pastel cloud banks, stylized physical materials and real-time shadows. Readable shapes take priority over woodland texture detail. Scenery frames a broad playable lawn: the painted lane is a suggested route, not an invisible corridor or out-of-bounds penalty. This is a solo first course, not multiplayer.
 
 ## Nine holes
 
@@ -39,3 +39,9 @@ The simulation records the course clock at launch. Windmill rendering and collis
 ## Validation
 
 Run npm test for deterministic interactions, saved-round validation and full nine-hole route fixtures at several sail phases. Browser scripts carnival-browser.mjs, carnival-gadgets.mjs and carnival-review.mjs cover native mouse round completion, replay, deliberate obstacle interactions, all nine views, reload and switching modes. Set TEST_URL to test a deployment. Browser route tests are automated input replays, not a substitute for human feel feedback.
+
+
+## Candyland visual finish
+Original procedural textures add sugar grain, frosting, wafer embossing and striped candy shells. Clearcoat and the existing environment reflection map supply glossy highlights; a warm sun, pink fill light, portal lights, bulb garlands and local contact shadows ground the props. Peppermint lollipops, candy canes, biscuits and instanced sprinkles frame the existing course. All obstacle dimensions and flight rules are unchanged.
+
+The carnival-only CandyFinish renders a half-float scene buffer and quarter-resolution highlight diffusion, then applies mild warm/cool color grading and a subtle vignette. It leaves the UI and flight targets crisp, with no depth-of-field blur or grain. Render targets resize with the viewport and are reused between holes. Textures are disposed with each course scene. Nature mode bypasses the finishing pass. This is rasterized WebGL with environment reflections, not hardware ray tracing.

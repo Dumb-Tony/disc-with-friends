@@ -1,3 +1,4 @@
+import { CandyFinish } from "./candy-finish.js";
 import { addPlayground } from "./playground-view.js";
 import { addWoodland } from "./woodland.js";
 import { addCourse } from "./course-view.js";
@@ -83,6 +84,7 @@ export class FieldView {
       this.woodland,
     ]) {
       if (!group) continue;
+      group.userData.dispose?.();
       this.scene.remove(group);
       const geometries = new Set(),
         materials = new Set();
@@ -112,17 +114,24 @@ export class FieldView {
       blades.instanceMatrix.needsUpdate = true;
     }
     const cartoon = hole.theme === "playground";
+    this.cartoon = cartoon;
+    if (cartoon && !this.candyFinish) {
+      this.candyFinish = new CandyFinish(this.renderer);
+      this.candyFinish.resize();
+    }
     this.landscape.visible = !cartoon;
     this.scene.getObjectByName("natureSky").visible = !cartoon;
     this.scene.background.set(cartoon ? "#8fdbf2" : "#b8d9d2");
     this.scene.fog = new THREE.FogExp2(
-      cartoon ? "#bdeaf4" : "#86b8a5",
+      cartoon ? "#edd6ec" : "#86b8a5",
       cartoon ? 0.0025 : 0.006,
     );
     this.sun.color.set(cartoon ? "#fff1dd" : "#ffdda6");
-    this.sun.intensity = cartoon ? 2.5 : 3.1;
+    this.sun.intensity = cartoon ? 3.2 : 3.1;
+    this.sun.shadow.radius = cartoon ? 3 : 1;
+    this.scene.environmentIntensity = cartoon ? 0.9 : 0.6;
     this.scene.children.find((o) => o.isHemisphereLight).intensity = cartoon
-      ? 1.7
+      ? 0.85
       : 0.65;
     this.renderer.toneMapping = cartoon
       ? THREE.NeutralToneMapping
@@ -238,6 +247,7 @@ export class FieldView {
   }
   resize() {
     this.renderer.setSize(innerWidth, innerHeight);
+    this.candyFinish?.resize();
     this.camera.aspect = innerWidth / innerHeight;
     this.camera.updateProjectionMatrix();
   }
@@ -350,6 +360,7 @@ export class FieldView {
     this.courseGroup.userData.animate?.(
       shot ? shot.courseTime + shot.time : courseTime,
     );
-    this.renderer.render(this.scene, this.camera);
+    if (this.cartoon) this.candyFinish.render(this.scene, this.camera);
+    else this.renderer.render(this.scene, this.camera);
   }
 }
