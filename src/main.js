@@ -4,7 +4,7 @@ let selectedDisc = "midrange";
 try {
   selectedDisc = discById(localStorage.getItem("dwf-disc-v1")).id;
 } catch {}
-import { course, holes } from "./course.js";
+import { courses } from "./courses.js";
 import { Round, scoreName } from "./round.js";
 const round = new Round();
 import { defaults, ranges, FIXED_DT, clamp, maxBank } from "./config.js";
@@ -30,6 +30,7 @@ try {
     "<article><h1>WebGL unavailable</h1><p>Enable hardware acceleration in your desktop browser, then reload.</p></article>";
   throw error;
 }
+let courseTime = 0;
 let completedShot = null;
 let shot = null,
   shotConfig = { ...config },
@@ -48,6 +49,7 @@ function reset(tee = false) {
   view.resetTrace();
   $("result").hidden = true;
   if (tee) {
+    courseTime = 0;
     lie = { x: 0, z: 0 };
     input.aim = 0;
     input.pitch = (config.launchLoft * Math.PI) / 180;
@@ -65,7 +67,7 @@ function throwDisc(spec, replay = false) {
   lastShot = replay
     ? lastShot
     : {
-        spec: { ...spec, lie: { ...lie } },
+        spec: { ...spec, lie: { ...lie }, courseTime },
         config: discConfig(config, selectedDisc, spec.power),
         discId: selectedDisc,
         before: round.strokes,
@@ -82,6 +84,7 @@ function throwDisc(spec, replay = false) {
   input.aim = lastShot.spec.aim;
   input.pitch = lastShot.spec.pitch ?? (shotConfig.launchLoft * Math.PI) / 180;
   input.bank = input.rawBank = lastShot.spec.bank;
+  courseTime = lastShot.spec.courseTime || 0;
   shot = launch(lastShot.spec, shotConfig);
   accumulator = 0;
   finished = false;
@@ -388,6 +391,7 @@ function frame(now) {
   if (!document.hidden) {
     accumulator += dt;
     while (accumulator >= FIXED_DT) {
+      if (started) courseTime += FIXED_DT;
       if (shot) {
         step(shot, shotConfig, FIXED_DT, round.hole.pin, round.hole);
         if (shot.event) {
@@ -408,14 +412,16 @@ function frame(now) {
       } else fromLie();
     }
     updateHUD();
-    view.update(dt, { input, shot, lie, active: started });
+    view.update(dt, { input, shot, lie, active: started, courseTime });
   }
   requestAnimationFrame(frame);
 }
 
 function saveRound() {
   try {
-    localStorage.setItem("dwf-round-v1", JSON.stringify(round.serialize(lie)));
+    const checkpoint = JSON.stringify(round.serialize(lie));
+    localStorage.setItem("dwf-round-v1", checkpoint);
+    localStorage.setItem("dwf-round-" + round.courseId, checkpoint);
   } catch {}
 }
 function toast(message) {
@@ -431,7 +437,37 @@ function loadHole() {
 }
 function updateHole() {
   const h = round.hole;
-  $("courseName").textContent = "SUNNY PINES / NATURE";
+  $("courseName").textContent = (
+    round.course.name +
+    " / " +
+    round.course.mode
+  ).toUpperCase();
+  document.body.dataset.theme = h.theme || "nature";
+  document.title = "Disc With Friends · " + round.course.name;
+  $("game").setAttribute("aria-label", round.course.name + " disc golf course");
+  $("map").setAttribute(
+    "aria-label",
+    h.theme
+      ? "Hole map: pink bumpers, yellow sails and pads, purple portals, blue fans"
+      : "Hole map: orange is you, gold is the basket, blue is water",
+  );
+  $("menuCourse").textContent =
+    round.course.name.toUpperCase() + " / NINE HOLES / PAR " + round.course.par;
+  $("menuTitle").innerHTML = h.theme
+    ? "Small course.<br>Big disc energy."
+    : "Find your line.<br>Nine ways home.";
+  $("menuDescription").textContent = h.theme
+    ? "Welcome to Cloud Carnival. Ride fans, bank off bumpers and fling through portal shortcuts. Nine candy-colored holes. Same discs. Entirely different playground."
+    : "Play Sunny Pines through pine gates, winding streams, ponds and stone greens. Water adds one stroke and moves you to a marked drop zone.";
+  $("newRound").textContent =
+    "New " + round.course.mode.toLowerCase() + " round";
+  $("scoreTitle").textContent = round.course.name + " scorecard";
+  for (const b of $("coursePicker").querySelectorAll("button"))
+    b.setAttribute("aria-pressed", String(b.dataset.course === round.courseId));
+  $("mapLegend").textContent = h.theme
+    ? "Pink: bumper · Yellow: sail / pad · Purple: portal · Blue: fan"
+    : "● You · ◆ Basket · Blue: water";
+  populatePractice();
   $("holeName").textContent = h.name;
   $("holeHint").textContent = h.hint;
   $("footerHole").textContent =
@@ -441,14 +477,14 @@ function showResult() {
   $("result").hidden = false;
   document.exitPointerLock?.();
   $("resultTitle").textContent = round.done
-    ? "SUNNY PINES · ROUND COMPLETE"
+    ? round.course.name.toUpperCase() + " · ROUND COMPLETE"
     : round.hole.name.toUpperCase() + " · COMPLETE";
   $("resultDistance").textContent = round.done
     ? round.total + " STROKES"
     : scoreName(round.strokes, round.hole.par);
   $("resultDetail").textContent = round.done
     ? "Par " +
-      course.par +
+      round.course.par +
       " · " +
       (round.relative > 0 ? "+" : "") +
       round.relative +
@@ -467,7 +503,7 @@ function showCard(open) {
   input.cancel();
   if (!open) return;
   document.exitPointerLock?.();
-  $("scoreRows").innerHTML = holes
+  $("scoreRows").innerHTML = round.holes
     .map((h, i) => {
       const s = round.scores[i];
       return (
@@ -490,7 +526,7 @@ function showCard(open) {
     })
     .join("");
   $("scoreTotal").textContent =
-    (round.practice ? "Practice" : "Sunny Pines") +
+    (round.practice ? "Practice" : round.course.name) +
     " · " +
     round.scores.filter(Boolean).length +
     "/9 completed · " +
@@ -507,7 +543,7 @@ function drawMap() {
     px = (x) => 100 - x * scale,
     py = (z) => 190 - z * scale;
   ctx.clearRect(0, 0, 200, 200);
-  ctx.fillStyle = "#173d32";
+  ctx.fillStyle = h.theme ? "#285c75" : "#173d32";
   ctx.fillRect(0, 0, 200, 200);
   ctx.strokeStyle = "#6c8853";
   ctx.lineWidth = 9 * scale;
@@ -537,6 +573,45 @@ function drawMap() {
     ctx.arc(px(r.x), py(r.z), r.radius * scale, 0, 7);
     ctx.fill();
   }
+  for (const o of h.gadgets || []) {
+    ctx.fillStyle = {
+      bumper: "#ff70ad",
+      mill: "#ffcf58",
+      fan: "#54c9f2",
+      portal: "#bd8bff",
+      pad: "#ffcf58",
+      wall: "#fff5d9",
+    }[o.type];
+    if (o.type === "fan" || o.type === "wall") {
+      const w = o.type === "fan" ? o.rx * 2 : o.w,
+        d = o.type === "fan" ? o.rz * 2 : o.d;
+      ctx.globalAlpha = o.type === "fan" ? 0.6 : 1;
+      ctx.fillRect(
+        px(o.x + w / 2),
+        py(o.z + d / 2),
+        w * scale,
+        Math.max(2, d * scale),
+      );
+      ctx.globalAlpha = 1;
+    } else {
+      ctx.beginPath();
+      ctx.arc(px(o.x), py(o.z), Math.max(2, (o.r || 2) * scale), 0, 7);
+      ctx.fill();
+    }
+    if (o.type === "portal") {
+      ctx.strokeStyle = "#cfa4ff";
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.moveTo(px(o.x), py(o.z));
+      ctx.lineTo(px(o.exit.x), py(o.exit.z));
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = "#54c9f2";
+      ctx.beginPath();
+      ctx.arc(px(o.exit.x), py(o.exit.z), 3, 0, 7);
+      ctx.fill();
+    }
+  }
   for (const [x, z, color, r] of [
     [0, 0, "#ffffff", 3],
     [h.pin.x, h.pin.z, "#ffe499", 5],
@@ -555,25 +630,79 @@ $("newRound").onclick = () => {
   loadHole();
   $("start").click();
 };
-$("practiceHole").innerHTML = holes
-  .map(
-    (h) =>
-      '<option value="' +
-      (h.id - 1) +
-      '">' +
-      h.id +
-      " · " +
-      h.name +
-      " · Par " +
-      h.par +
-      "</option>",
-  )
-  .join("");
+function populatePractice() {
+  const previous = $("practiceHole").value;
+  $("practiceHole").innerHTML = round.holes
+    .map(
+      (h) =>
+        '<option value="' +
+        (h.id - 1) +
+        '">' +
+        h.id +
+        " · " +
+        h.name +
+        " · Par " +
+        h.par +
+        "</option>",
+    )
+    .join("");
+  $("practiceHole").value = previous || "0";
+}
 $("practice").onclick = () => {
   round.start(Number($("practiceHole").value), true);
   loadHole();
   $("start").click();
 };
+$("coursePicker").innerHTML = courses
+  .map(
+    (c) =>
+      '<button data-course="' +
+      c.id +
+      '"><b>' +
+      c.name +
+      "</b><span>" +
+      c.mode +
+      " · 9 holes · Par " +
+      c.par +
+      "</span></button>",
+  )
+  .join("");
+for (const b of $("coursePicker").querySelectorAll("button"))
+  b.onclick = () => {
+    if (b.dataset.course === round.courseId) return;
+    // A course switch resumes the last settled lie, not a half-completed throw.
+    if (!shot || finished) saveRound();
+    input.cancel();
+    shot = null;
+    lastShot = null;
+    completedShot = null;
+    finished = false;
+    courseTime = 0;
+    view.resetTrace();
+    let saved = null;
+    try {
+      saved = JSON.parse(localStorage.getItem("dwf-round-" + b.dataset.course));
+    } catch {}
+    if (saved?.course === b.dataset.course && round.restore(saved)) {
+      lie = { ...saved.lie };
+      view.loadHole(round.hole);
+      input.aim = Math.atan2(
+        round.hole.pin.x - lie.x,
+        round.hole.pin.z - lie.z,
+      );
+      input.pitch = (config.launchLoft * Math.PI) / 180;
+      input.bank = input.rawBank = 0;
+      $("result").hidden = true;
+      if (round.holed) showResult();
+    } else {
+      round.start(0, false, b.dataset.course);
+      loadHole();
+    }
+    updateHole();
+    saveRound();
+    $("start").textContent =
+      "Play " + round.course.name + " · Hole " + (round.index + 1);
+  };
 try {
   const data = JSON.parse(localStorage.getItem("dwf-round-v1"));
   if (round.restore(data)) {
@@ -589,6 +718,14 @@ try {
   }
 } catch {}
 updateHole();
+const requestedCourse = new URLSearchParams(location.search).get("course");
+if (requestedCourse && requestedCourse !== round.courseId) {
+  const button = [...$("coursePicker").querySelectorAll("button")].find(
+    (b) => b.dataset.course === requestedCourse,
+  );
+  button?.click();
+}
+saveRound();
 function updateBag() {
   for (const b of $("discBag").querySelectorAll("button"))
     b.setAttribute("aria-pressed", String(b.dataset.disc === selectedDisc));
@@ -637,5 +774,6 @@ window.discLab = {
       lastShot,
       finished,
       completedShot,
+      courseTime,
     }),
 };

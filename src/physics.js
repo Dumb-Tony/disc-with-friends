@@ -1,3 +1,4 @@
+import { gadgetForces, collideGadgets } from "./playground-physics.js";
 import { collideEnvironment } from "./environment.js";
 import { overhandAmount, overhandResponse } from "./overhand.js";
 import { collideCourse } from "./course-collision.js";
@@ -11,7 +12,14 @@ import {
   maxBank,
 } from "./config.js";
 export function launch(
-  { aim = 0, pitch, bank = 0, power = 0.7, lie = { x: 0, z: 0 } },
+  {
+    aim = 0,
+    pitch,
+    bank = 0,
+    power = 0.7,
+    lie = { x: 0, z: 0 },
+    courseTime = 0,
+  },
   config = defaults,
 ) {
   const p = clamp(power, 0, 1),
@@ -33,6 +41,7 @@ export function launch(
     overhandSide: Math.sign(bank) || 1,
     spin: 20 + 70 * p,
     time: 0,
+    courseTime,
     phase: "flight",
     skips: 0,
     scored: false,
@@ -109,9 +118,11 @@ export function step(
       s.event = "rest";
     }
   }
+  gadgetForces(s, obstacles, dt);
   s.x += s.vx * dt;
   s.y += s.vy * dt;
   s.z += s.vz * dt;
+  collideGadgets(s, old, obstacles);
   collideCourse(s, old, Array.isArray(obstacles) ? obstacles : obstacles.trees);
   collideEnvironment(s, old, obstacles);
   if (s.hazard) return s;

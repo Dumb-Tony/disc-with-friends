@@ -38,7 +38,7 @@
         height="200"
         aria-label="Hole map: orange is you, gold is the basket, blue is water"
       ></canvas
-      ><small>● You &nbsp; ◆ Basket &nbsp; Blue: water</small>
+      ><small id="mapLegend">● You &nbsp; ◆ Basket &nbsp; Blue: water</small>
     </aside>
     <div id="toast" hidden></div>
     <aside id="bag">
@@ -76,9 +76,12 @@
     </footer>
     <div id="welcome" class="veil">
       <article>
-        <span class="eyebrow">SUNNY PINES / NINE HOLES / PAR 34</span>
-        <h1>Find your line.<br />Nine ways home.</h1>
-        <p>
+        <span class="eyebrow" id="menuCourse"
+          >SUNNY PINES / NINE HOLES / PAR 34</span
+        >
+        <h1 id="menuTitle">Find your line.<br />Nine ways home.</h1>
+        <div id="coursePicker"></div>
+        <p id="menuDescription">
           Play a complete nature round through pine gates, winding streams,
           ponds and stone greens. Water adds one stroke and moves you to a
           marked drop zone. Every landing sets up your next throw automatically.
@@ -118,7 +121,7 @@
             >Practice a hole
             <select id="practiceHole"></select></label
           ><button id="practice">Practice →</button
-          ><span>Playground · Silly courses coming next</span>
+          ><span>Two worlds. One throw.</span>
         </div>
       </article>
     </div>
@@ -145,7 +148,7 @@
     <div id="scorecard" class="veil" hidden>
       <article>
         <button id="closeScore">Close ✕</button>
-        <h2>Sunny Pines scorecard</h2>
+        <h2 id="scoreTitle">Sunny Pines scorecard</h2>
         <p id="scoreTotal"></p>
         <table>
           <thead>

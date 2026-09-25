@@ -1,0 +1,142 @@
+[
+  {
+    "index": 0,
+    "key": "bumperHits",
+    "dx": -60,
+    "draw": 100,
+    "pitchPixels": 40,
+    "spec": {
+      "aim": -0.15,
+      "pitch": 0.07453292519943294,
+      "power": 0.4166666666666667,
+      "bank": 0,
+      "courseTime": 0,
+      "lie": {
+        "x": 0,
+        "z": 0
+      }
+    },
+    "time": 2.8833333333333258,
+    "expected": {
+      "x": 4.473478562868185,
+      "y": 0.12,
+      "z": 13.174842363499742,
+      "vx": 0,
+      "vy": 0,
+      "vz": 0,
+      "bank": -0.0012229957592993033,
+      "overhand": 0,
+      "overhandSide": 1,
+      "spin": 31.903505279111133,
+      "time": 2.8833333333333258,
+      "courseTime": 0,
+      "phase": "rest",
+      "skips": 3,
+      "scored": false,
+      "carry": 15.892360129612573,
+      "origin": {
+        "x": 0,
+        "z": 0
+      },
+      "event": "rest",
+      "impact": null,
+      "chainTouched": false,
+      "chainCooldown": 0,
+      "bumperHits": 1
+    }
+  },
+  {
+    "index": 3,
+    "key": "teleports",
+    "dx": 100,
+    "draw": 140,
+    "pitchPixels": 70,
+    "spec": {
+      "aim": 0.13457333963307527,
+      "pitch": -0.00046707480056706885,
+      "power": 0.5833333333333334,
+      "bank": 0,
+      "courseTime": 0,
+      "lie": {
+        "x": 0,
+        "z": 0
+      }
+    },
+    "time": 3.4583333333333237,
+    "expected": {
+      "x": -3.3884803871195657,
+      "y": 0.12,
+      "z": 60.209005001541925,
+      "vx": 0,
+      "vy": 0,
+      "vz": 0,
+      "bank": -0.00003698832161729142,
+      "overhand": 0,
+      "overhandSide": 1,
+      "spin": 36.21190326850778,
+      "time": 3.4583333333333237,
+      "courseTime": 0,
+      "phase": "rest",
+      "skips": 2,
+      "scored": false,
+      "carry": 51.0713997010447,
+      "origin": {
+        "x": 0,
+        "z": 0
+      },
+      "event": "rest",
+      "impact": null,
+      "chainTouched": false,
+      "chainCooldown": 0,
+      "portalUntil": 1.9499999999999984,
+      "teleports": 1
+    }
+  },
+  {
+    "index": 4,
+    "key": "bounces",
+    "dx": -10,
+    "draw": 110,
+    "pitchPixels": 100,
+    "spec": {
+      "aim": -0.025,
+      "pitch": -0.07546707480056705,
+      "power": 0.4583333333333333,
+      "bank": 0,
+      "courseTime": 0,
+      "lie": {
+        "x": 0,
+        "z": 0
+      }
+    },
+    "time": 3.933333333333322,
+    "expected": {
+      "x": 0.30975332633345015,
+      "y": 0.12,
+      "z": 21.9686307264848,
+      "vx": 0,
+      "vy": 0,
+      "vz": 0,
+      "bank": -0.012353409755440158,
+      "overhand": 0,
+      "overhandSide": 1,
+      "spin": 28.87121274658961,
+      "time": 3.933333333333322,
+      "courseTime": 0,
+      "phase": "rest",
+      "skips": 2,
+      "scored": false,
+      "carry": 9.65612457694718,
+      "origin": {
+        "x": 0,
+        "z": 0
+      },
+      "event": "rest",
+      "impact": null,
+      "chainTouched": false,
+      "chainCooldown": 0,
+      "padUntil": 1.6749999999999983,
+      "bounces": 1
+    }
+  }
+]

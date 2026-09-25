@@ -13,13 +13,19 @@ export class Sound {
     const ctx = this.ctx,
       t = ctx.currentTime;
     const tones =
-      type === "chains"
-        ? [880, 1320, 1760, 2217]
-        : type === "throw"
-          ? [180 + power * 120]
-          : type === "metal"
-            ? [620, 1070]
-            : [90];
+      type === "portal"
+        ? [440, 660, 880]
+        : type === "bumper"
+          ? [220, 440]
+          : type === "spring"
+            ? [330, 990]
+            : type === "chains"
+              ? [880, 1320, 1760, 2217]
+              : type === "throw"
+                ? [180 + power * 120]
+                : type === "metal"
+                  ? [620, 1070]
+                  : [90];
     tones.forEach((freq, i) => {
       const o = ctx.createOscillator(),
         g = ctx.createGain();

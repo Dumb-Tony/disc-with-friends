@@ -1,3 +1,4 @@
+import { addPlayground } from "./playground-view.js";
 import { addWoodland } from "./woodland.js";
 import { addCourse } from "./course-view.js";
 import { ChainStrand } from "./chain-motion.js";
@@ -31,7 +32,9 @@ export class FieldView {
     this.look = v(0, 1.5, 15);
     this.sun = addLighting(this.scene, this.renderer);
     this.mats = createMaterials();
-    addLandscape(this.scene, this.mats);
+    this.landscape = new THREE.Group();
+    this.scene.add(this.landscape);
+    addLandscape(this.landscape, this.mats);
     this.loadHole(openingHole);
     this.disc = createDisc(this.mats);
     this.scene.add(this.disc);
@@ -108,9 +111,27 @@ export class FieldView {
       }
       blades.instanceMatrix.needsUpdate = true;
     }
-    this.woodland = addWoodland(this.scene, this.mats, hole);
+    const cartoon = hole.theme === "playground";
+    this.landscape.visible = !cartoon;
+    this.scene.getObjectByName("natureSky").visible = !cartoon;
+    this.scene.background.set(cartoon ? "#8fdbf2" : "#b8d9d2");
+    this.scene.fog = new THREE.FogExp2(
+      cartoon ? "#bdeaf4" : "#86b8a5",
+      cartoon ? 0.0025 : 0.006,
+    );
+    this.sun.color.set(cartoon ? "#fff1dd" : "#ffdda6");
+    this.sun.intensity = cartoon ? 2.5 : 3.1;
+    this.scene.children.find((o) => o.isHemisphereLight).intensity = cartoon
+      ? 1.7
+      : 0.65;
+    this.renderer.toneMapping = cartoon
+      ? THREE.NeutralToneMapping
+      : THREE.ACESFilmicToneMapping;
+    this.woodland = cartoon ? null : addWoodland(this.scene, this.mats, hole);
     this.target = hole.pin;
-    this.courseGroup = addCourse(this.scene, this.mats, hole);
+    this.courseGroup = cartoon
+      ? addPlayground(this.scene, hole)
+      : addCourse(this.scene, this.mats, hole);
     const visual = createBasket(this.mats, hole.id);
     this.basket = visual.group;
     this.chains = visual.chains;
@@ -226,7 +247,7 @@ export class FieldView {
     this.trace.geometry.dispose();
     this.trace.geometry = new THREE.BufferGeometry();
   }
-  update(dt, { input, shot, lie, active }) {
+  update(dt, { input, shot, lie, active, courseTime = 0 }) {
     const aim = input.aim,
       forward = v(Math.sin(aim), 0, Math.cos(aim)),
       right = v(-Math.cos(aim), 0, Math.sin(aim));
@@ -326,6 +347,9 @@ export class FieldView {
     this.sun.target.position.set(sx, 0, sz);
     this.mats.water.normalMap.offset.x += dt * 0.009;
     this.mats.water.normalMap.offset.y += dt * 0.005;
+    this.courseGroup.userData.animate?.(
+      shot ? shot.courseTime + shot.time : courseTime,
+    );
     this.renderer.render(this.scene, this.camera);
   }
 }

@@ -1,6 +1,8 @@
-import { course, holes } from "./course.js";
+import { course } from "./course.js";
+import { courseById } from "./courses.js";
 export class Round {
   constructor() {
+    this.courseId = course.id;
     this.index = 0;
     this.scores = Array(9).fill(null);
     this.strokes = 0;
@@ -9,19 +11,27 @@ export class Round {
     this.done = false;
     this.holed = false;
   }
+  get course() {
+    return courseById(this.courseId);
+  }
+  get holes() {
+    return this.course.holes;
+  }
   get hole() {
-    return holes[this.index];
+    return this.holes[this.index];
   }
   get total() {
     return this.scores.reduce((n, s) => n + (s?.strokes || 0), 0);
   }
   get relative() {
     return this.scores.reduce(
-      (n, s, i) => n + (s ? s.strokes - holes[i].par : 0),
+      (n, s, i) => n + (s ? s.strokes - this.holes[i].par : 0),
       0,
     );
   }
-  start(index = 0, practice = false) {
+  start(index = 0, practice = false, courseId = this.courseId) {
+    if (!courseById(courseId)) throw new Error("Unknown course");
+    this.courseId = courseId;
     this.index = index;
     this.scores = Array(9).fill(null);
     this.strokes = 0;
@@ -57,7 +67,7 @@ export class Round {
   serialize(lie) {
     return {
       version: 1,
-      course: course.id,
+      course: this.courseId,
       index: this.index,
       scores: this.scores,
       strokes: this.strokes,
@@ -71,7 +81,7 @@ export class Round {
   restore(data) {
     if (
       data?.version !== 1 ||
-      data.course !== course.id ||
+      !courseById(data.course) ||
       !Number.isInteger(data.index) ||
       data.index < 0 ||
       data.index > 8 ||
@@ -116,6 +126,7 @@ export class Round {
       !!data.done !== (!data.practice && data.index === 8 && data.holed)
     )
       return false;
+    this.courseId = data.course;
     for (const key of [
       "index",
       "scores",

@@ -59,3 +59,7 @@ The visual pass adds textured boughs and stones, moving water highlights, denser
 
 
 Water now uses shared sampled shorelines: irregular pond contours and continuous winding creeks. Rendering, minimap, hazards and grass masking consume the same boundary from water-shape.js. Banks include reeds and varied-width earthy edging. Grass density is increased to 70,000 instanced clumps, with taller rough; broadleaf crowns and course pines have individual alpha-cut leaf sprays. Decorative foliage remains separate from deterministic flight.
+
+
+## Cloud Carnival — Playground mode
+[Play the cartoon course](https://dumb-tony.github.io/disc-with-friends/?course=cloud-carnival-v1). Nine new holes with windmills, spring bumpers, fans, trampolines and portal shortcuts. Switch courses in Menu; Sunny Pines and Cloud Carnival retain separate round saves. See [Playground design and tuning](docs/PLAYGROUND.md).

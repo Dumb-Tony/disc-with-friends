@@ -612,3 +612,96 @@ td {
   padding: 10px 14px;
   border-radius: 10px;
 }
+
+/* Cloud Carnival: candy colors, chunky silhouettes, and clear course selection. */
+#coursePicker {
+  display: flex;
+  gap: 12px;
+  margin: 18px 0;
+}
+#coursePicker button {
+  flex: 1;
+  text-align: left;
+  padding: 14px 18px;
+}
+#coursePicker b,
+#coursePicker span {
+  display: block;
+}
+#coursePicker span {
+  font-size: 12px;
+  opacity: 0.8;
+  margin-top: 5px;
+}
+#coursePicker [aria-pressed="true"] {
+  border: 2px solid #ffe28b;
+  background: #326352;
+}
+.veil {
+  overflow-y: auto;
+}
+body[data-theme="playground"] {
+  color: #fff9ef;
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+}
+body[data-theme="playground"] button {
+  background: #5e4b94;
+  border: 2px solid #ffffff70;
+  border-radius: 15px;
+  box-shadow: 0 3px 0 #3c386a;
+}
+body[data-theme="playground"] button:hover {
+  background: #8c62bb;
+}
+body[data-theme="playground"] .veil {
+  background: #382d6580;
+}
+body[data-theme="playground"] .veil article,
+body[data-theme="playground"] #panel {
+  background: #34345aed;
+  border: 2px solid #d6caff;
+  border-radius: 25px;
+}
+body[data-theme="playground"] h1 {
+  color: #ffda72;
+  letter-spacing: -2px;
+}
+body[data-theme="playground"] #coursePicker [aria-pressed="true"] {
+  background: #9360b6;
+  border-color: #ffcf58;
+}
+body[data-theme="playground"] .primary {
+  background: #fa8db1;
+  color: #332c53;
+}
+body[data-theme="playground"] #result {
+  background: #574589ec;
+  border: 3px solid #ffdc71;
+  border-radius: 24px;
+}
+body[data-theme="playground"] #powerFill {
+  background: #ffcf58;
+}
+
+body[data-theme="playground"] #holeGuide,
+body[data-theme="playground"] #bag {
+  background: #514575e8;
+  border: 2px solid #d8c9ef;
+  border-radius: 20px;
+}
+body[data-theme="playground"] .brand,
+body[data-theme="playground"] #score {
+  background: #fff2d9;
+  color: #564376;
+  border-radius: 20px;
+}
+body[data-theme="playground"] .veil p,
+body[data-theme="playground"] .veil small {
+  color: #e4dbf3;
+}
+
+body[data-theme="playground"] #target {
+  background: #fff2d9;
+  color: #564376;
+  border-radius: 20px;
+}

@@ -60,3 +60,7 @@ The user approved expanding the mechanics into two course families. Sunny Pines 
 
 ## Woodland art direction and disc bag (user-approved)
 Visual references call for stylized woodland: rounded canopies, cool layered forest depth, rich vegetation and warm shafts of sunlight. Procedural materials, instanced woodland, soft light volumes and environment reflections interpret this in the existing WebGL game. No claim of hardware ray tracing. Three discs now supersede the single-disc milestone: Nest putter, Fieldwork midrange (original baseline), Kestrel driver. Selection is a simple between-shot choice; aim, bank and draw remain the only throwing controls.
+
+
+## Playground mode (user-approved)
+The user approved beginning the whimsical putt-putt version with a distinctly cartoon art direction. Cloud Carnival is now a separate nine-hole, par-33 playground, with windmills, bumpers, fans, trampolines, candy walls and portal shortcuts. The nature course remains available. Shared controls and disc profiles preserve learned throwing skills. Read docs/PLAYGROUND.md for rules, course progression, rendering/simulation boundaries and replay-clock behavior.

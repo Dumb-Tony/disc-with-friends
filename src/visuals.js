@@ -228,6 +228,7 @@ export function addLighting(scene, renderer) {
     "; #include",
     ";\n#include",
   );
+  sky.name = "natureSky";
   scene.add(sky);
   return sun;
 }
