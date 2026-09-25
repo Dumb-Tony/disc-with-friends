@@ -9,7 +9,7 @@
 
 The simulation integrates semi-implicitly at 1/120 s. Render frames contribute time to an accumulator. Long visible stalls are capped at 100 ms; hidden tabs pause. This preserves shot paths at the cost of slower wall-clock playback during severe stalls. No promise of bit-identical floating point across all browser engines, but a single browser produces identical shot states.
 
-Lift uses squared relative horizontal airspeed, capped for arcade stability. Drag opposes relative air velocity. Lift is banked into vertical and lateral components. High-speed turn and low-speed fade change bank, resisted by automatic spin. Spin decays exponentially. Ground contacts choose bounce, slide or edge roll; friction brings them to rest. Swept basket proximity prevents chain tunnelling; gentle chain hits catch, fast ones reject. These are deliberately simplified contact rules, not rigid-body chain simulation.
+Lift uses squared relative horizontal airspeed, capped for arcade stability. Drag opposes relative air velocity. Lift is banked into vertical and lateral components. High-speed turn and low-speed fade change bank, resisted by automatic spin. Spin decays exponentially. Ground contacts choose bounce, slide or edge roll; friction brings them to rest. Basket contact now lives in `basket-collision.js`; it sweeps a thin oriented ellipsoid along each physics tick with samples smaller than disc thickness. Metal wires, rim rings, post and top band deflect according to their contact normal. Nominal chain strand contacts absorb speed based on impact offset and speed. A score requires a prior chain touch and a retained tray landing, so the disc falls instead of teleporting into the basket.
 
 ## Fast tuning loop
 
@@ -29,6 +29,17 @@ Vendored Three.js 0.180.0 (MIT license included). No build step required for bro
 
 ## Visual pass 0.2
 
-`src/visuals.js` owns procedural materials, molded disc geometry and stamp, linked-chain basket, turf and pine instancing, sky/reflection lighting and soft contact shadow. Textures are generated locally from fixed seeds; no remote art dependencies. Decoration has no collision or flight authority. Chain response remains visual, driven by the existing catch event. Grass and foliage use instancing to limit draw calls. The moving sunlight shadow region follows the disc; only rendering is affected.
+`src/visuals.js` owns procedural materials, molded disc geometry and stamp, linked-chain basket, turf and pine instancing, sky/reflection lighting and soft contact shadow. Textures are generated locally from fixed seeds; no remote art dependencies. Decoration has no collision or flight authority. Chain flex remains visual, driven by the collision impact position and incoming velocity. Grass and foliage use instancing to limit draw calls. The moving sunlight shadow region follows the disc; only rendering is affected.
 
 Run `node scripts/visual-review.mjs` against the local server (or set TEST_URL) to capture isolated disc/basket close-ups and report shader console errors and rendering counts. Its temporary inspection page is intercepted only by the test browser and is not shipped as a game mode.
+
+
+## Basket contacts and chain response
+
+- 'basket-shape.js' defines basket dimensions, metal wire segments and nominal chain attachment positions. The visible disc radius and its contact radius are both 0.24 m, allowing it to fit between the pole and rim.
+- 'basket-collision.js' resolves the first swept contact in each tick. Metal takes priority over chains at overlapping boundaries. Side, low and high metal hits bounce; grazing contacts deflect along the contact normal. Top-band cap is solid. A chain hit emits impact position/velocity, damps motion and starts a short contact cooldown. Hard or off-center hits can escape.
+- Scoring happens on downward, slow tray contact inside the basket, only after the shot has touched a chain. A direct tray landing without a chain hit is retained but unscored, as requested. The flexible bottom chain loop is not a rigid metal collider.
+- 'chain-motion.js' simulates attached, slightly slack Verlet strands at 120 Hz with distance constraints, restoring forces and damping. The impacted links and nearby strands receive the impulse. The renderer orients each instanced link along its deformed strand. The nominal chain collider does not follow visual deformation; replay outcomes remain independent of rendering frame rate.
+- Contacts are deterministic arcade approximations, not a full flexible-body or disc rigid-body solver. Tune metal restitution and chain speed retention in 'basket-collision.js' / 'basket-shape.js'; tune slack, damping and response in 'chain-motion.js'.
+
+'node scripts/basket-browser.mjs' renders controlled collision fixtures through the real physics and renderer, capturing a chain hit, later tray catch and lower-ring ricochet. These are automated diagnostic replays; the regular browser test also completes a mouse-driven scoring shot from the tee.

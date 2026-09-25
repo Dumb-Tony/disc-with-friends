@@ -1,3 +1,4 @@
+import { collideBasket } from "./basket-collision.js";
 import { defaults, FIXED_DT, clamp, basket, pitchLimits } from "./config.js";
 export function launch(
   { aim = 0, pitch, bank = 0, power = 0.7, lie = { x: 0, z: 0 } },
@@ -26,11 +27,15 @@ export function launch(
     carry: 0,
     origin: { ...lie },
     event: null,
+    impact: null,
+    chainTouched: false,
+    chainCooldown: 0,
   };
 }
 // Renderer/input independent. Mutates one state for precisely one fixed tick.
 export function step(s, c = defaults, dt = FIXED_DT, target = basket) {
   s.event = null;
+  s.impact = null;
   if (s.phase === "rest" || s.scored) return s;
   const old = { x: s.x, y: s.y, z: s.z };
   s.time += dt;
@@ -80,42 +85,8 @@ export function step(s, c = defaults, dt = FIXED_DT, target = basket) {
   s.x += s.vx * dt;
   s.y += s.vy * dt;
   s.z += s.vz * dt;
-  // Swept closest approach prevents tunnelling through the chains at full speed.
-  if (target) {
-    const dx = s.x - old.x,
-      dz = s.z - old.z,
-      len = dx * dx + dz * dz;
-    const t = clamp(
-      ((target.x - old.x) * dx + (target.z - old.z) * dz) / Math.max(len, 1e-9),
-      0,
-      1,
-    );
-    const x = old.x + dx * t,
-      z = old.z + dz * t,
-      y = old.y + (s.y - old.y) * t,
-      r = Math.hypot(x - target.x, z - target.z);
-    if (r < target.radius && y > 0.72 && y < 1.95 && s.phase === "flight") {
-      if (Math.hypot(s.vx, s.vy, s.vz) < 17) {
-        s.x = target.x;
-        s.z = target.z;
-        s.y = 0.8;
-        s.carry ||= Math.hypot(s.x - s.origin.x, s.z - s.origin.z);
-        s.vx = s.vy = s.vz = 0;
-        s.scored = true;
-        s.phase = "rest";
-        s.event = "chains";
-        return s;
-      }
-      s.vx *= -0.24;
-      s.vz *= -0.24;
-      s.vy = -1;
-      s.event = "metal";
-    } else if (r < 0.16 && y < 2.05 && y > 0.1 && s.phase === "flight") {
-      s.vx *= -0.45;
-      s.vz *= -0.45;
-      s.event = "metal";
-    }
-  }
+  collideBasket(s, old, target, dt);
+  if (s.phase === "rest") return s;
   if (s.y < 0.12 && s.phase === "flight") {
     s.y = 0.12;
     s.carry ||= Math.hypot(s.x - s.origin.x, s.z - s.origin.z);

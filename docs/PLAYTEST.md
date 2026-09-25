@@ -24,3 +24,8 @@ Report what you expected, what happened, and whether the issue was input, flight
 ## Vertical aiming
 
 Move the mouse up/down before drawing: aim from 20 degrees down to 55 degrees up. Check the elevation readout and launch-direction marker, then deliberately move vertically while holding LMB: only power should change. Holding RMB should affect bank without changing elevation. Try a high lob and a low skip at the same power. R keeps your selected elevation; Home and N return to the configured starting pitch. Replay must reproduce the original elevation. `node scripts/pitch-framing.mjs` captures both limits using real browser mouse input.
+
+
+## Basket accuracy
+
+Aim low at either tray ring: the disc should ricochet, with metal audio, instead of scoring. Aim at the center pole or top band to check those rejections. Raise the shot into the chains: they should bend near the contact and lose motion naturally as the disc drops. A hard or glancing chain strike can spit out; chain contact alone is not a score. Check the rim with a banked disc as well as a flat one. Repeat with Space to verify the same outcome. The low 211-pixel default tee draw that previously scored now hits metal; a 213-pixel straight draw reaches the chains and is a regression fixture.

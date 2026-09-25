@@ -81,22 +81,6 @@ test("steep release can roll", () => {
   );
   assert.ok(path.some((s) => s.phase === "roll"));
 });
-test("swept chain catch scores, fast shot rejects, outside shot misses", () => {
-  const s = launch({ power: 0.1, lie: { x: 0, z: 54.8 } });
-  s.vz = 5;
-  s.vy = 0;
-  step(s);
-  assert.equal(s.scored, true);
-  const fast = launch({ power: 1, lie: { x: 0, z: 54.3 } });
-  fast.vz = 100;
-  fast.vy = 0;
-  step(fast);
-  assert.equal(fast.scored, false);
-  assert.ok(fast.vz < 0);
-  const miss = launch({ lie: { x: 2, z: 54.8 } });
-  step(miss);
-  assert.equal(miss.scored, false);
-});
 test("120Hz tick results are independent of render frame grouping", () => {
   const run = (hz) => {
     const s = launch({ power: 0.8 });

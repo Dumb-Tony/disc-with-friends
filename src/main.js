@@ -298,7 +298,7 @@ function frame(now) {
         step(shot, shotConfig);
         if (shot.event) {
           sound.play(shot.event);
-          if (shot.event === "chains") view.chainTime = 1;
+          if (shot.impact) view.onBasketImpact(shot.impact);
         }
       }
       accumulator -= FIXED_DT;

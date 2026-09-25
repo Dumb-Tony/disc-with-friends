@@ -9,6 +9,7 @@ export class Sound {
   }
   play(type, power = 0.5) {
     if (!this.enabled || !this.ctx) return;
+    if (type === "basket") type = "chains";
     const ctx = this.ctx,
       t = ctx.currentTime;
     const tones =

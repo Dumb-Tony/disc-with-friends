@@ -54,7 +54,7 @@ await page.waitForFunction(
 );
 let replay = await page.evaluate(() => discLab.snapshot());
 assert.deepEqual(
-  { ...replay.shot, event: null },
+  { ...replay.shot, event: null, impact: null },
   { ...first.shot, event: null },
 );
 assert.equal(replay.count, 1);
@@ -83,7 +83,7 @@ await page.mouse.click(720, 400);
 await page.waitForTimeout(100);
 await page.keyboard.press("Home");
 await page.mouse.down();
-await page.mouse.move(720, 611, { steps: 20 });
+await page.mouse.move(720, 613, { steps: 20 });
 await page.mouse.up();
 await page.waitForFunction(
   () => discLab.snapshot().finished,

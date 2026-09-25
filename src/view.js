@@ -1,3 +1,4 @@
+import { ChainStrand } from "./chain-motion.js";
 import * as THREE from "../vendor/three.module.js";
 import { basket } from "./config.js";
 import {
@@ -71,9 +72,59 @@ export class FieldView {
     this.scene.add(this.trace);
     this.points = [];
     this.lastTraceTime = 0;
-    this.chainTime = 0;
+    this.chainAccumulator = 0;
+    this.chainModels = this.chains.map(
+      (chain) =>
+        new ChainStrand(
+          chain.userData.layout.top,
+          chain.userData.layout.bottom,
+        ),
+    );
+    this.linkDummy = new THREE.Object3D();
+    this.linkTwist = new THREE.Quaternion();
     addEventListener("resize", () => this.resize());
     this.resize();
+  }
+  onBasketImpact(impact) {
+    if (!impact || impact.kind !== "chains") return;
+    const hit = {
+      ...impact,
+      x: impact.x - this.basket.position.x,
+      z: impact.z - this.basket.position.z,
+    };
+    for (const strand of this.chainModels) strand.kick(hit);
+  }
+  animateChains(dt) {
+    this.chainAccumulator += Math.min(dt, 0.1);
+    while (this.chainAccumulator >= 1 / 120) {
+      for (const strand of this.chainModels) strand.step();
+      this.chainAccumulator -= 1 / 120;
+    }
+    const up = v(0, 1, 0),
+      tangent = v();
+    this.chains.forEach((chain, index) => {
+      const points = this.chainModels[index].points;
+      for (let j = 0; j < points.length; j++) {
+        const p = points[j],
+          a = points[Math.max(j - 1, 0)],
+          b = points[Math.min(j + 1, points.length - 1)];
+        this.linkDummy.position.set(
+          p.x - chain.position.x,
+          p.y - chain.position.y,
+          p.z - chain.position.z,
+        );
+        tangent.set(a.x - b.x, a.y - b.y, a.z - b.z).normalize();
+        this.linkDummy.quaternion.setFromUnitVectors(up, tangent);
+        this.linkTwist.setFromAxisAngle(
+          up,
+          chain.userData.layout.angle + ((j % 2) * Math.PI) / 2,
+        );
+        this.linkDummy.quaternion.multiply(this.linkTwist);
+        this.linkDummy.updateMatrix();
+        chain.setMatrixAt(j, this.linkDummy.matrix);
+      }
+      chain.instanceMatrix.needsUpdate = true;
+    });
   }
   mesh(geometry, material, x, y, z) {
     const mesh = new THREE.Mesh(geometry, material);
@@ -150,7 +201,7 @@ export class FieldView {
       this.disc.position.set(shot.x, shot.y, shot.z);
       const heading = Math.atan2(shot.vx, shot.vz);
       const flightPitch =
-        shot.phase === "flight"
+        shot.phase === "flight" && !shot.chainTouched
           ? Math.atan2(shot.vy, Math.hypot(shot.vx, shot.vz))
           : 0;
       this.disc.rotation.set(-flightPitch, heading, shot.bank, "YXZ");
@@ -202,10 +253,7 @@ export class FieldView {
     const height = this.disc.position.y;
     this.shadow.scale.setScalar(1 + height * 0.06);
     this.shadow.material.opacity = Math.max(0.06, 0.3 - height * 0.018);
-    this.chainTime = Math.max(0, this.chainTime - dt);
-    for (let i = 0; i < this.chains.length; i++)
-      this.chains[i].rotation.z =
-        Math.sin(this.chainTime * 30 + i) * this.chainTime * 0.06;
+    this.animateChains(dt);
     // Keep the useful shadow region around the shot, snapped to reduce shimmer.
     const sx = Math.round(this.disc.position.x * 16) / 16;
     const sz = Math.round(this.disc.position.z * 16) / 16;

@@ -29,9 +29,9 @@ For development: `npm ci`, `npm test`. `npm run vendor` refreshes the pinned Thr
 
 ## Included
 
-3D practice range; 55 m basket; deterministic 120 Hz aerodynamics; bank, speed-dependent turn/fade and spin decay; skips, slides and edge rolls; fixed wind tuning; swept simplified chain catches and pole deflection; setup/flight/landing camera; shot counter; exact replay; current-lie practice; persistent tuning; downloadable shot/coefficient report; basic synthesized throw, ground and chain sounds.
+3D practice range; 55 m basket; deterministic 120 Hz aerodynamics; bank, speed-dependent turn/fade and spin decay; skips, slides and edge rolls; fixed wind tuning; swept disc-shaped contacts with both basket rings, tray wires, post and top band; chain damping followed by a physical tray landing; locally flexing chain strands; setup/flight/landing camera; shot counter; exact replay; current-lie practice; persistent tuning; downloadable shot/coefficient report; basic synthesized throw, ground and chain sounds.
 
-This is a first feel-testing build, not a finished physics simulator. Basket contacts use a forgiving geometric catch volume and speed threshold, not articulated chain physics. Far trees are scenery, not collision obstacles. There is no multiplayer, obstacle course, touch mode or elaborate art. Spin is automatic. Mouse up/down controls launch elevation. The player only chooses direction, angle and power.
+This is a first feel-testing build, not a finished physics simulator. Basket metal now deflects the disc. A score requires actual chain contact followed by a retained tray landing; a rim hit alone never scores. The contact model uses a thin oriented disc approximation and static chain strands. The linked-chain animation uses damped constraints, with fixed attachments; it does not feed forces back into flight. Far trees are scenery, not collision obstacles. There is no multiplayer, obstacle course, touch mode or elaborate art. Spin is automatic. Mouse up/down controls launch elevation. The player only chooses direction, angle and power.
 
 See [design](docs/DESIGN.md), [architecture and tuning](docs/ARCHITECTURE.md), and [playtest checklist](docs/PLAYTEST.md).
 

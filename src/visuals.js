@@ -1,3 +1,4 @@
+import { basketShape, chainLayout } from "./basket-shape.js";
 import * as THREE from "../vendor/three.module.js";
 
 // Seeded decoration never shares state with flight physics.
@@ -233,6 +234,7 @@ export function createDisc(materials) {
   const disc = new THREE.Group(),
     spin = new THREE.Group();
   disc.add(spin);
+  disc.scale.setScalar(basketShape.discRadius / 0.3);
   // Actual flight plate, rounded nose and undercut rim instead of a solid puck.
   const profile = [
     [0, 0.026],
@@ -325,7 +327,12 @@ export function createBasket(materials) {
   const steel = materials.metal;
   mesh(
     group,
-    new THREE.CylinderGeometry(0.055, 0.055, 2.18, 20),
+    new THREE.CylinderGeometry(
+      basketShape.postRadius,
+      basketShape.postRadius,
+      basketShape.postTop,
+      20,
+    ),
     steel,
     0,
     1.09,
@@ -337,7 +344,8 @@ export function createBasket(materials) {
     0,
     0.045,
   );
-  for (const height of [0.74, 1.01]) ring(group, 0.64, 0.022, height, steel);
+  for (const height of [basketShape.lowerRimY, basketShape.upperRimY])
+    ring(group, basketShape.trayRadius, basketShape.rimTube, height, steel);
   ring(group, 0.36, 0.012, 0.735, steel);
   ring(group, 0.16, 0.015, 0.735, steel);
   for (let i = 0; i < 24; i++) {
@@ -409,35 +417,34 @@ export function createBasket(materials) {
   }
   const linkGeometry = new THREE.TorusGeometry(0.019, 0.0048, 5, 10);
   linkGeometry.scale(1, 1.65, 1);
-  for (let row = 0; row < 2; row++)
-    for (let i = 0; i < (row ? 12 : 18); i++) {
-      const count = row ? 12 : 18,
-        a = ((i + 0.5 * row) / count) * Math.PI * 2,
-        r = row ? 0.31 : 0.51;
-      const chain = new THREE.InstancedMesh(linkGeometry, steel, 17);
-      chain.castShadow = true;
-      chain.receiveShadow = true;
-      chain.position.set(Math.sin(a) * r, 1.915, Math.cos(a) * r);
-      const dummy = new THREE.Object3D();
-      for (let j = 0; j < 17; j++) {
-        const t = j / 16,
-          radial = (0.14 - r) * t;
-        dummy.position.set(
-          Math.sin(a) * radial,
-          -0.035 - t * 0.88,
-          Math.cos(a) * radial,
-        );
-        dummy.rotation.set(
-          Math.cos(a) * 0.26,
-          a + ((j % 2) * Math.PI) / 2,
-          -Math.sin(a) * 0.26,
-        );
-        dummy.updateMatrix();
-        chain.setMatrixAt(j, dummy.matrix);
-      }
-      group.add(chain);
-      chains.push(chain);
+  for (const layout of chainLayout) {
+    const a = layout.angle,
+      r = layout.radius;
+    const chain = new THREE.InstancedMesh(linkGeometry, steel, 17);
+    chain.castShadow = true;
+    chain.receiveShadow = true;
+    chain.position.set(Math.sin(a) * r, 1.915, Math.cos(a) * r);
+    chain.userData.layout = layout;
+    const dummy = new THREE.Object3D();
+    for (let j = 0; j < 17; j++) {
+      const t = j / 16,
+        radial = (0.14 - r) * t;
+      dummy.position.set(
+        Math.sin(a) * radial,
+        -0.035 - t * 0.88,
+        Math.cos(a) * radial,
+      );
+      dummy.rotation.set(
+        Math.cos(a) * 0.26,
+        a + ((j % 2) * Math.PI) / 2,
+        -Math.sin(a) * 0.26,
+      );
+      dummy.updateMatrix();
+      chain.setMatrixAt(j, dummy.matrix);
     }
+    group.add(chain);
+    chains.push(chain);
+  }
   ring(group, 0.15, 0.015, 0.995, steel);
   mesh(
     group,

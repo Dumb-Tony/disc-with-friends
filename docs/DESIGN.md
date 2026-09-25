@@ -40,3 +40,8 @@ Obstacles create opportunities, not only punishment. Aim for a safe route, risky
 ## Superseded proposals
 
 Earlier discussion entertained Unity, timing mechanics, explicit nose angle, multiple discs and a broader first level. The final decision is HTML + JavaScript + WebGL first, with only direction/bank/power, one disc and an empty practice field. Unity is a possible later migration if project scale warrants it; clean simulation boundaries preserve that option. Historical brainstorming is archived locally for continuity, not treated as current scope.
+
+
+## Basket acceptance update
+
+Basket metal must be physical: lower and upper tray rims, wire tray, pole and top band can reject a shot. Scoring requires a real chain strike followed by the disc remaining in the tray, rather than entering a broad invisible catch volume. Chains should respond locally to impact direction and strength, then settle with damping. Full articulated-chain contact physics remains beyond this sandbox; a deterministic contact approximation and responsive strand animation are appropriate here.
