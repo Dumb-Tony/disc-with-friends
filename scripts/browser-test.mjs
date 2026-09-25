@@ -10,7 +10,7 @@ const browser = await chromium.launch({
 const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } }),
   errors = [];
 page.on("pageerror", (e) => errors.push(e.message));
-await page.goto(process.env.TEST_URL || "http://127.0.0.1:43927");
+await page.goto(process.env.TEST_URL || "http://127.0.0.1:43928");
 await page.waitForFunction(() => window.discLab);
 await page.screenshot({ path: "artifacts/welcome.png" });
 await page.click("#start");
@@ -38,7 +38,7 @@ await page.mouse.up();
 await page.waitForTimeout(1800);
 await page.screenshot({ path: "artifacts/flight.png" });
 await page.waitForFunction(
-  () => discLab.snapshot().finished,
+  () => !!discLab.snapshot().completedShot,
   {},
   { timeout: 20000 },
 );
@@ -46,21 +46,21 @@ let first = await page.evaluate(() => discLab.snapshot());
 assert.equal(first.count, 1);
 await page.screenshot({ path: "artifacts/landing.png" });
 await page.keyboard.press("Space");
-await page.waitForFunction(() => !discLab.snapshot().finished);
+await page.waitForFunction(() => !discLab.snapshot().completedShot);
 await page.waitForFunction(
-  () => discLab.snapshot().finished,
+  () => !!discLab.snapshot().completedShot,
   {},
   { timeout: 20000 },
 );
 let replay = await page.evaluate(() => discLab.snapshot());
 assert.deepEqual(
-  { ...replay.shot, event: null, impact: null },
-  { ...first.shot, event: null },
+  { ...replay.completedShot, event: null, impact: null },
+  { ...first.completedShot, event: null, impact: null },
 );
 assert.equal(replay.count, 1);
-await page.keyboard.press("KeyN");
+assert.equal(await page.locator("#result").isVisible(), false);
 let next = await page.evaluate(() => discLab.snapshot());
-assert.equal(next.lie.x, first.shot.x);
+assert.equal(next.lie.x, first.completedShot.x);
 assert.equal(next.shot, null);
 assert.equal(next.input.pitch, Math.PI / 18);
 await page.keyboard.press("Home");
@@ -86,7 +86,7 @@ await page.mouse.down();
 await page.mouse.move(720, 613, { steps: 20 });
 await page.mouse.up();
 await page.waitForFunction(
-  () => discLab.snapshot().finished,
+  () => !!discLab.snapshot().completedShot,
   {},
   { timeout: 20000 },
 );
@@ -98,6 +98,6 @@ assert.ok((await page.evaluate(() => discLab.snapshot())).input.pitch < 0);
 await page.screenshot({ path: "artifacts/pitch-down.png" });
 assert.deepEqual(errors, []);
 console.log(
-  "Browser pass: vertical aim + pitch lock, real pointer draw + aim lock, flight, landing, exact replay, next lie, reset, tuning persistence, successful basket from tee. No page errors.",
+  "Browser pass: vertical aim + pitch lock, real pointer draw + aim lock, flight, landing, exact replay, automatic next lie, reset, tuning persistence, successful basket from tee. No page errors.",
 );
 await browser.close();

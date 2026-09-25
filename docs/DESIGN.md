@@ -45,3 +45,7 @@ Earlier discussion entertained Unity, timing mechanics, explicit nose angle, mul
 ## Basket acceptance update
 
 Basket metal must be physical: lower and upper tray rims, wire tray, pole and top band can reject a shot. Scoring requires a real chain strike followed by the disc remaining in the tray, rather than entering a broad invisible catch volume. Chains should respond locally to impact direction and strength, then settle with damping. Full articulated-chain contact physics remains beyond this sandbox; a deterministic contact approximation and responsive strand animation are appropriate here.
+
+
+## First playable hole (user-approved scope)
+Pine Gate is now hole 01, a 55 m par 3. A narrow central pine gate offers a direct aggressive line; a broad mown left flank offers a safe two-shot approach. Nine authored trees use shared visible/collision dimensions; trunks deflect and foliage absorbs speed. No water penalty or elaborate course content in this first hole. Missed shots automatically advance to their settled lie, face the basket and reset bank. Only holing out shows a completion panel. R/Home restart the hole; Space remains an exact shot replay for testing.

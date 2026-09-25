@@ -1,8 +1,8 @@
-# Disc With Friends — The Field
+# Disc With Friends — Pine Gate
 
 **[Play in your browser](https://dumb-tony.github.io/disc-with-friends/)** · Desktop and mouse · Mechanics prototype 0.1
 
-One disc, one practice basket, one question: is throwing fun enough to build a game around?
+A 55 m par 3: thread a narrow pine gate or take the broad mown flank. Land, line up and throw again automatically.
 
 ## Controls
 
@@ -13,9 +13,8 @@ One disc, one practice basket, one question: is throwing fun enough to build a g
 | Draw power | Hold left mouse and pull toward you (down); push forward to reduce |
 | Throw | Release left mouse |
 | Cancel draw | Right mouse or Esc |
-| Reset at current lie | R |
-| Return to tee | Home |
-| Play from landing position | N |
+| Restart hole | R or Home |
+| Play from landing position | Automatic |
 | Repeat identical last shot and coefficients | Space |
 | Developer tuning | T |
 
@@ -25,13 +24,13 @@ Click the field to capture the cursor. Esc releases it. Horizontal aim, vertical
 
 Requires Node 20+. Run `npm start`, then open http://localhost:4173 in Chrome or Edge. Set the `PORT` environment variable if occupied. Runtime assets are checked in; local play needs no installation or CDN. ES modules need an HTTP server, not a file:// launch.
 
-For development: `npm ci`, `npm test`. `npm run vendor` refreshes the pinned Three.js files. `node scripts/browser-test.mjs` exercises Chrome against localhost:43927; set `TEST_URL` for another server. The browser test's executable path is currently Windows Chrome.
+For development: `npm ci`, `npm test`. `npm run vendor` refreshes the pinned Three.js files. `node scripts/browser-test.mjs` exercises Chrome against localhost:43928; set `TEST_URL` for another server. The browser test's executable path is currently Windows Chrome.
 
 ## Included
 
-3D practice range; 55 m basket; deterministic 120 Hz aerodynamics; bank, speed-dependent turn/fade and spin decay; skips, slides and edge rolls; fixed wind tuning; swept disc-shaped contacts with both basket rings, tray wires, post and top band; chain damping followed by a physical tray landing; locally flexing chain strands; setup/flight/landing camera; shot counter; exact replay; current-lie practice; persistent tuning; downloadable shot/coefficient report; basic synthesized throw, ground and chain sounds.
+First 55 m par 3 with physical pine trees; deterministic 120 Hz aerodynamics; bank, speed-dependent turn/fade and spin decay; skips, slides and edge rolls; fixed wind tuning; swept disc-shaped contacts with both basket rings, tray wires, post and top band; chain damping followed by a physical tray landing; locally flexing chain strands; setup/flight/landing camera; shot counter; exact replay; automatic lie advancement; persistent tuning; downloadable shot/coefficient report; basic synthesized throw, ground and chain sounds.
 
-This is a first feel-testing build, not a finished physics simulator. Basket metal now deflects the disc. A score requires actual chain contact followed by a retained tray landing; a rim hit alone never scores. The contact model uses a thin oriented disc approximation and static chain strands. The linked-chain animation uses damped constraints, with fixed attachments; it does not feed forces back into flight. Far trees are scenery, not collision obstacles. There is no multiplayer, obstacle course, touch mode or elaborate art. Spin is automatic. Mouse up/down controls launch elevation. The player only chooses direction, angle and power.
+This is a first feel-testing build, not a finished physics simulator. Basket metal now deflects the disc. A score requires actual chain contact followed by a retained tray landing; a rim hit alone never scores. The contact model uses a thin oriented disc approximation and static chain strands. The linked-chain animation uses damped constraints, with fixed attachments; it does not feed forces back into flight. Far trees are scenery, not collision obstacles. There is no multiplayer or touch mode. Spin is automatic. Mouse up/down controls launch elevation. The player only chooses direction, angle and power.
 
 See [design](docs/DESIGN.md), [architecture and tuning](docs/ARCHITECTURE.md), and [playtest checklist](docs/PLAYTEST.md).
 
@@ -43,3 +42,6 @@ The complete source design conversation is preserved in `private/design-conversa
 
 
 Chain catch feel: central strikes engage several strands and retain forward motion capped at 3.5 m/s, letting the disc enter the curtain. A pole contact within 0.65 seconds of a chain strike, above the lower chain attachment, absorbs normal velocity instead of rebounding; exposed pole and rim contacts remain rigid. Edge clips retain more momentum and can miss. Scoring still waits for a retained tray landing. These are deterministic feel coefficients in src/basket-collision.js, not a full flexible-body simulation.
+
+
+Pine Gate: first playable 55 m par 3, with physical pine obstacles and a mown safe flank. Non-scoring landings automatically advance to the next throw. R or Home restarts the hole; Space replays the previous throw. The completion card appears only on a successful basket.

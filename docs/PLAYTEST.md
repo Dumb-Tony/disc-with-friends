@@ -9,8 +9,8 @@ This build is ready for feedback, not a declaration that the mechanics feel exce
 3. During a draw, move sideways deliberately. Direction must stay locked.
 4. Try R immediately after launch; throw again. Try Esc/RMB cancellation without an accidental throw.
 5. Watch the flight and landing. Can you keep the disc in view and understand where it stopped? Any uncomfortable camera swing?
-6. Press Space: identical replay. N continues from the lie. Home returns to the tee.
-7. Reach the basket from your lie. Check gentle catches and hard rejections. Try a deliberately steep bank for a roller.
+6. Press Space: identical replay. The next lie is automatic with no prompt. R or Home restarts the hole.
+7. Reach the basket from your lie. Check gentle and firm centered catches, and off-center rejections. Try a deliberately steep bank for a roller.
 8. Open T, change one coefficient, make a new throw, then restore defaults. Check sidewind/headwind/tailwind.
 
 Report what you expected, what happened, and whether the issue was input, flight, camera or landing. Export shot + tuning for a reproducible physics report. Useful priorities: draw distance sensitivity, low-power precision, visible late fade, anhyzer flex, landing friction, camera speed.
@@ -29,3 +29,6 @@ Move the mouse up/down before drawing: aim from 20 degrees down to 55 degrees up
 ## Basket accuracy
 
 Aim low at either tray ring: the disc should ricochet, with metal audio, instead of scoring. Aim at the center pole or top band to check those rejections. Raise the shot into the chains: they should bend near the contact and lose motion naturally as the disc drops. A hard or glancing chain strike can spit out; chain contact alone is not a score. Check the rim with a banked disc as well as a flat one. Repeat with Space to verify the same outcome. The low 211-pixel default tee draw that previously scored now hits metal; a 213-pixel straight draw reaches the chains and is a regression fixture.
+
+
+Pine Gate route checks: from default tee, aim 0.3 radians toward the open flank and draw 50%; this gives a clear lay-up. From the resulting lie, aim 0.03 radians left of the automatic basket aim and draw 50% for a tested birdie approach. Straight ahead at 213/240 power is a precise ace fixture; aim 0.1 radians at 50% hits the gate trees. The course browser test uses actual mouse events to complete the flank route, restart, ace the gate and recover automatically from a tree hit. These fixtures validate reachable routes, not human difficulty or feel.

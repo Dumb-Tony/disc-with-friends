@@ -1,3 +1,4 @@
+import { addCourse } from "./course-view.js";
 import { ChainStrand } from "./chain-motion.js";
 import * as THREE from "../vendor/three.module.js";
 import { basket } from "./config.js";
@@ -30,17 +31,7 @@ export class FieldView {
     this.sun = addLighting(this.scene, this.renderer);
     this.mats = createMaterials();
     addLandscape(this.scene, this.mats);
-    for (let z = 10; z <= 120; z += 10) {
-      const line = this.mesh(
-        new THREE.PlaneGeometry(52, 0.065),
-        this.mats.line,
-        0,
-        0.002,
-        z,
-      );
-      line.rotation.x = -Math.PI / 2;
-      this.label(`${z} m`, -28, 0.15, z);
-    }
+    addCourse(this.scene, this.mats);
     const basketVisual = createBasket(this.mats);
     this.basket = basketVisual.group;
     this.basket.position.set(basket.x, 0, basket.z);

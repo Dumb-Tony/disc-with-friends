@@ -4,7 +4,7 @@
 - `src/physics.js`: engine-independent mutable shot state; `launch`, fixed `step`, headless `simulate`. No DOM, Three.js, clock or random calls. Wind is uniform, ground is flat. Extend environment queries here when obstacles become in scope.
 - `src/input.js`: direction/bank/draw state machine, independent of the DOM. Positive screen-right aim maps to negative world yaw because the range runs along +Z. Positive bank means anhyzer. Wind X is screen-right from the tee; Z is tailwind.
 - `src/view.js`: Three.js scene, disc transform, recorded trail, shadows, camera and simple basket animation. Visuals cannot feed forces back into the simulation.
-- `src/main.js`: event wiring, accumulator, shot/lie lifecycle, HUD and saved tuning. Coefficients are copied at launch so adjusting a slider never silently changes a disc already in flight. Space replays original coefficients; R sets up a fresh throw using current settings.
+- `src/main.js`: event wiring, accumulator, shot/lie lifecycle, HUD and saved tuning. Coefficients are copied at launch so adjusting a slider never silently changes a disc already in flight. Space replays original coefficients; R restarts the hole using current settings.
 - `src/audio.js`: small gesture-activated Web Audio cues, no downloaded assets.
 
 The simulation integrates semi-implicitly at 1/120 s. Render frames contribute time to an accumulator. Long visible stalls are capped at 100 ms; hidden tabs pause. This preserves shot paths at the cost of slower wall-clock playback during severe stalls. No promise of bit-identical floating point across all browser engines, but a single browser produces identical shot states.
@@ -46,3 +46,6 @@ Run `node scripts/visual-review.mjs` against the local server (or set TEST_URL) 
 
 
 Chain catch feel: central strikes engage several strands and retain forward motion capped at 3.5 m/s, letting the disc enter the curtain. A pole contact within 0.65 seconds of a chain strike, above the lower chain attachment, absorbs normal velocity instead of rebounding; exposed pole and rim contacts remain rigid. Edge clips retain more momentum and can miss. Scoring still waits for a retained tray landing. These are deterministic feel coefficients in src/basket-collision.js, not a full flexible-body simulation.
+
+
+Course data lives in src/course.js, shared by course-view.js and course-collision.js. Main passes the tree list into the pure fixed-step simulation; isolated physics/basket tests can omit obstacles. Swept contacts distinguish hard trunks from yielding foliage, once per canopy entry. The completedShot diagnostic retains the last landing after automatic lie advancement. Hole restart clears score and replay history.

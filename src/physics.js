@@ -1,3 +1,4 @@
+import { collideCourse } from "./course-collision.js";
 import { collideBasket } from "./basket-collision.js";
 import { defaults, FIXED_DT, clamp, basket, pitchLimits } from "./config.js";
 export function launch(
@@ -33,7 +34,13 @@ export function launch(
   };
 }
 // Renderer/input independent. Mutates one state for precisely one fixed tick.
-export function step(s, c = defaults, dt = FIXED_DT, target = basket) {
+export function step(
+  s,
+  c = defaults,
+  dt = FIXED_DT,
+  target = basket,
+  obstacles = [],
+) {
   s.event = null;
   s.impact = null;
   if (s.phase === "rest" || s.scored) return s;
@@ -85,6 +92,7 @@ export function step(s, c = defaults, dt = FIXED_DT, target = basket) {
   s.x += s.vx * dt;
   s.y += s.vy * dt;
   s.z += s.vz * dt;
+  collideCourse(s, old, obstacles);
   collideBasket(s, old, target, dt);
   if (s.phase === "rest") return s;
   if (s.y < 0.12 && s.phase === "flight") {
@@ -115,11 +123,16 @@ export function step(s, c = defaults, dt = FIXED_DT, target = basket) {
   }
   return s;
 }
-export function simulate(shot, config = defaults, target = basket) {
+export function simulate(
+  shot,
+  config = defaults,
+  target = basket,
+  obstacles = [],
+) {
   const s = launch(shot, config),
     path = [];
   for (let i = 0; i < 5401 && s.phase !== "rest"; i++) {
-    step(s, config, FIXED_DT, target);
+    step(s, config, FIXED_DT, target, obstacles);
     if (i % 12 === 0) path.push({ ...s });
   }
   return { state: s, path };

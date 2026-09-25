@@ -1,3 +1,4 @@
+import { hole, trees } from "./course.js";
 import { defaults, ranges, FIXED_DT, basket, clamp } from "./config.js";
 import { launch, step } from "./physics.js";
 import { ThrowInput } from "./input.js";
@@ -21,6 +22,7 @@ try {
     "<article><h1>WebGL unavailable</h1><p>Enable hardware acceleration in your desktop browser, then reload.</p></article>";
   throw error;
 }
+let completedShot = null;
 let shot = null,
   shotConfig = { ...config },
   lie = { x: 0, z: 0 },
@@ -44,10 +46,13 @@ function reset(tee = false) {
     input.pitch = (config.launchLoft * Math.PI) / 180;
     input.bank = input.rawBank = 0;
     count = 0;
+    lastShot = null;
+    completedShot = null;
   }
   updateHUD();
 }
 function throwDisc(spec, replay = false) {
+  completedShot = null;
   lastShot = replay
     ? lastShot
     : { spec: { ...spec, lie: { ...lie } }, config: { ...config } };
@@ -75,6 +80,7 @@ function fromLie() {
     lie = { x: shot.x, z: shot.z };
     input.aim = Math.atan2(basket.x - lie.x, basket.z - lie.z);
     input.pitch = (config.launchLoft * Math.PI) / 180;
+    input.bank = input.rawBank = 0;
     reset();
   }
 }
@@ -159,8 +165,7 @@ $("help").onclick = () => {
 $("tune").onclick = () => panel($("panel").hidden);
 $("closeTune").onclick = () => panel(false);
 $("reset").onclick = () => reset(true);
-$("again").onclick = () => reset();
-$("lie").onclick = fromLie;
+$("again").onclick = () => reset(true);
 $("replay").onclick = replay;
 $("sound").onclick = () => {
   sound.enabled = !sound.enabled;
@@ -215,12 +220,11 @@ addEventListener("keydown", (e) => {
     panel(false);
   }
   if (!started) return;
-  if (e.code === "KeyR") reset();
+  if (e.code === "KeyR") reset(true);
   if (e.code === "Home") {
     e.preventDefault();
     reset(true);
   }
-  if (e.code === "KeyN") fromLie();
   if (e.code === "Space") {
     e.preventDefault();
     replay();
@@ -295,7 +299,7 @@ function frame(now) {
     accumulator += dt;
     while (accumulator >= FIXED_DT) {
       if (shot) {
-        step(shot, shotConfig);
+        step(shot, shotConfig, FIXED_DT, basket, trees);
         if (shot.event) {
           sound.play(shot.event);
           if (shot.impact) view.onBasketImpact(shot.impact);
@@ -304,19 +308,24 @@ function frame(now) {
       accumulator -= FIXED_DT;
     }
     if (shot?.phase === "rest" && !finished) {
+      completedShot = structuredClone(shot);
       finished = true;
-      $("result").hidden = false;
-      $("resultTitle").textContent = shot.scored
-        ? "IN THE BASKET"
-        : "SHOT COMPLETE";
-      const total = Math.hypot(shot.x - lie.x, shot.z - lie.z),
-        toPin = Math.hypot(shot.x - basket.x, shot.z - basket.z);
-      $("resultDistance").textContent = shot.scored
-        ? "CHING!"
-        : `${total.toFixed(1)} m`;
-      $("resultDetail").textContent =
-        `${shot.carry.toFixed(1)} m carry · ${shot.skips} skips · ${toPin.toFixed(1)} m to basket`;
-      $("lie").hidden = shot.scored;
+      if (shot.scored) {
+        $("result").hidden = false;
+        $("resultTitle").textContent = "PINE GATE · COMPLETE";
+        const difference = count - hole.par;
+        $("resultDistance").textContent =
+          count === 1
+            ? "ACE!"
+            : difference === 0
+              ? "PAR"
+              : difference === -1
+                ? "BIRDIE"
+                : difference > 0
+                  ? "+" + difference
+                  : String(difference);
+        $("resultDetail").textContent = count + " throws · Par " + hole.par;
+      } else fromLie();
     }
     updateHUD();
     view.update(dt, { input, shot, lie, active: started });
@@ -327,5 +336,14 @@ requestAnimationFrame(frame);
 // Read-only diagnostic snapshots for browser regressions; no production input shortcuts.
 window.discLab = {
   snapshot: () =>
-    structuredClone({ shot, input, lie, count, config, lastShot, finished }),
+    structuredClone({
+      shot,
+      input,
+      lie,
+      count,
+      config,
+      lastShot,
+      finished,
+      completedShot,
+    }),
 };
