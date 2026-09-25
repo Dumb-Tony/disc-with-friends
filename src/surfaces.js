@@ -80,7 +80,50 @@ export function surfaceMaterials() {
     5,
     false,
   );
+  const leafTexture = map((c, r) => {
+    c.clearRect(0, 0, 512, 512);
+    for (let i = 0; i < 28; i++) {
+      c.save();
+      c.translate(r() * 512, r() * 512);
+      c.rotate(r() * 6.28);
+      const size = 22 + r() * 26;
+      c.fillStyle = ["#406b3b", "#678645", "#315331", "#849a55"][i % 4];
+      c.beginPath();
+      c.moveTo(0, -size);
+      c.quadraticCurveTo(size * 0.75, -size * 0.2, 0, size);
+      c.quadraticCurveTo(-size * 0.75, size * 0.2, 0, -size);
+      c.fill();
+      c.strokeStyle = "#ced297";
+      c.lineWidth = 0.8;
+      c.beginPath();
+      c.moveTo(0, -size * 0.7);
+      c.lineTo(0, size * 0.8);
+      c.stroke();
+      c.restore();
+    }
+  });
   return {
+    mud: new THREE.MeshStandardMaterial({
+      map: sand,
+      color: "#85896a",
+      roughness: 1,
+    }),
+    leafSprays: new THREE.MeshStandardMaterial({
+      map: leafTexture,
+      alphaTest: 0.45,
+      side: THREE.DoubleSide,
+      roughness: 1,
+    }),
+    bank: new THREE.MeshStandardMaterial({
+      map: sand,
+      color: "#65704c",
+      roughness: 1,
+    }),
+    reeds: new THREE.MeshStandardMaterial({
+      color: "#6c8750",
+      side: THREE.DoubleSide,
+      roughness: 1,
+    }),
     needles: new THREE.MeshStandardMaterial({
       map: needles,
       color: "#aab694",
@@ -103,12 +146,12 @@ export function surfaceMaterials() {
     water: new THREE.MeshPhysicalMaterial({
       color: "#155858",
       normalMap: waves,
-      normalScale: new THREE.Vector2(0.3, 0.3),
-      roughness: 0.16,
+      normalScale: new THREE.Vector2(0.18, 0.18),
+      roughness: 0.27,
       metalness: 0.22,
-      clearcoat: 1,
+      clearcoat: 0.55,
       clearcoatRoughness: 0.12,
-      envMapIntensity: 0.8,
+      envMapIntensity: 0.35,
     }),
   };
 }

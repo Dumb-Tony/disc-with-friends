@@ -1,3 +1,4 @@
+import { waterOutline } from "./water-shape.js";
 import { discs, discById, discConfig } from "./discs.js";
 let selectedDisc = "midrange";
 try {
@@ -518,7 +519,10 @@ function drawMap() {
   ctx.fillStyle = "#67b3c1";
   for (const w of h.water) {
     ctx.beginPath();
-    ctx.ellipse(px(w.x), py(w.z), w.rx * scale, w.rz * scale, 0, 0, 7);
+    waterOutline(w).forEach((p, i) =>
+      i ? ctx.lineTo(px(p.x), py(p.z)) : ctx.moveTo(px(p.x), py(p.z)),
+    );
+    ctx.closePath();
     ctx.fill();
   }
   ctx.fillStyle = "#b7c58b";

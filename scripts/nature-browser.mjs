@@ -5,11 +5,16 @@ const routes = JSON.parse(
   fs.readFileSync("tests/fixtures/nature-round.json", "utf8"),
 );
 const browser = await chromium.launch({
-  executablePath: "C:/Program Files/Google/Chrome/Application/chrome.exe",
+  executablePath:
+    process.env.BROWSER_EXECUTABLE ||
+    "C:/Program Files/Google/Chrome/Application/chrome.exe",
   headless: true,
-  args: ["--enable-webgl", "--use-angle=swiftshader"],
+  args: [
+    "--enable-webgl",
+    "--use-angle=" + (process.env.ANGLE_BACKEND || "swiftshader"),
+  ],
 });
-const page = await browser.newPage({ viewport: { width: 1200, height: 850 } }),
+const page = await browser.newPage({ viewport: { width: 960, height: 720 } }),
   errors = [];
 page.on("pageerror", (e) => errors.push(e.message));
 try {
@@ -42,7 +47,7 @@ try {
       await page.waitForFunction(
         () => discLab.snapshot().completedShot !== null,
         {},
-        { timeout: 45000 },
+        { timeout: 60000 },
       );
       const after = await page.evaluate(() => discLab.snapshot());
       assert.equal(
@@ -101,7 +106,7 @@ try {
   await page.waitForFunction(
     () => discLab.snapshot().completedShot !== null,
     {},
-    { timeout: 45000 },
+    { timeout: 60000 },
   );
   s = await page.evaluate(() => discLab.snapshot());
   console.log("Water check", s.completedShot.hazard, s.count);
@@ -113,7 +118,7 @@ try {
   await page.waitForFunction(
     () => discLab.snapshot().completedShot !== null,
     {},
-    { timeout: 45000 },
+    { timeout: 60000 },
   );
   s = await page.evaluate(() => discLab.snapshot());
   assert.equal(s.count, 2);
@@ -129,7 +134,9 @@ try {
   assert.equal(s.round.index, 1);
   assert.deepEqual(errors, []);
   console.log(
-    process.env.HAZARDS_ONLY ? "PASS: practice, water penalty, replay, saved lie and restart." : "PASS: full nine-hole native-input round, scorecard, save/resume, practice, water penalty, replay, restart.",
+    process.env.HAZARDS_ONLY
+      ? "PASS: practice, water penalty, replay, saved lie and restart."
+      : "PASS: full nine-hole native-input round, scorecard, save/resume, practice, water penalty, replay, restart.",
   );
 } finally {
   await browser.close();

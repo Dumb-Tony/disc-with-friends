@@ -1,3 +1,4 @@
+import { waterOutline } from "./water-shape.js";
 import * as THREE from "../vendor/three.module.js";
 import { hole as openingHole } from "./course.js";
 export function addCourse(parent, materials, hole = openingHole) {
@@ -26,7 +27,32 @@ export function addCourse(parent, materials, hole = openingHole) {
     geo.computeVertexNormals();
     return geo;
   };
+  const twigs = new THREE.InstancedMesh(
+      new THREE.PlaneGeometry(1, 1),
+      materials.leafSprays,
+      trees.length * 100,
+    ),
+    twig = new THREE.Object3D();
+  let twigIndex = 0;
   for (const t of trees) {
+    for (let j = 0; j < 100; j++) {
+      const tier = j % 5,
+        h = t.height * 0.38,
+        cy = t.height * (0.35 + tier * 0.135),
+        f = 0.15 + ((j * 17) % 67) / 100,
+        a = j * 2.399,
+        r = t.width * (1 - tier * 0.155) * (1 - f);
+      twig.position.set(
+        t.x + Math.sin(a) * r,
+        cy - h / 2 + f * h,
+        t.z + Math.cos(a) * r,
+      );
+      twig.rotation.set(0.2 * Math.sin(j), a, 0.3 * Math.cos(j));
+      twig.scale.setScalar(Math.min(0.65, r * 0.7 + 0.15));
+      twig.updateMatrix();
+      twigs.setMatrixAt(twigIndex++, twig.matrix);
+    }
+
     add(
       new THREE.CylinderGeometry(
         t.trunkRadius,
@@ -49,6 +75,8 @@ export function addCourse(parent, materials, hole = openingHole) {
       );
     }
   }
+  twigs.castShadow = twigs.receiveShadow = true;
+  scene.add(twigs);
   // A broad mown flank suggests a lay-up; the narrow central gate remains open.
   const fairway = new THREE.MeshStandardMaterial({
     color: "#91a65c",
@@ -97,17 +125,54 @@ export function addCourse(parent, materials, hole = openingHole) {
   green.castShadow = false;
   const water = materials.water,
     shore = materials.shore;
+  const waterMesh = (w, margin, y, mat) => {
+    const shape = new THREE.Shape();
+    waterOutline(w, margin).forEach((p, i) =>
+      i ? shape.lineTo(p.x, -p.z) : shape.moveTo(p.x, -p.z),
+    );
+    shape.closePath();
+    const geo = new THREE.ShapeGeometry(shape);
+    geo.rotateX(-Math.PI / 2);
+    const pos = geo.attributes.position,
+      uv = geo.attributes.uv;
+    for (let i = 0; i < pos.count; i++)
+      uv.setXY(i, pos.getX(i) / 18, pos.getZ(i) / 18);
+    const m = add(geo, mat, 0, y, 0);
+    m.castShadow = false;
+    return m;
+  };
+  const reedGeo = new THREE.BufferGeometry();
+  reedGeo.setAttribute(
+    "position",
+    new THREE.Float32BufferAttribute(
+      [
+        -0.025, 0, 0, 0.025, 0, 0, 0.12, 0.9, 0.03, 0, 0, -0.025, 0, 0, 0.025,
+        -0.07, 0.65, 0.1,
+      ],
+      3,
+    ),
+  );
+  reedGeo.computeVertexNormals();
+  const reedCount = hole.water.length * 90;
+  const reeds = new THREE.InstancedMesh(reedGeo, materials.reeds, reedCount),
+    dummy = new THREE.Object3D();
+  let n = 0;
   for (const w of hole.water) {
-    for (const [mat, extra, y] of [
-      [shore, 0.55, 0.008],
-      [water, 0, 0.025],
-    ]) {
-      const m = add(new THREE.CircleGeometry(1, 48), mat, w.x, y, w.z);
-      m.rotation.x = -Math.PI / 2;
-      m.scale.set(w.rx + extra, w.rz + extra, 1);
-      m.castShadow = false;
+    waterMesh(w, 1.1, 0.008, materials.bank);
+    waterMesh(w, 0.35, 0.013, materials.mud);
+    waterMesh(w, 0, 0.025, water);
+    const edge = waterOutline(w, 0.65);
+    for (let j = 0; j < 90; j++) {
+      const pt = edge[Math.floor((j / 90) * edge.length)];
+      dummy.position.set(pt.x, 0.025, pt.z);
+      dummy.rotation.set(0, j * 2.4, Math.sin(j) * 0.12);
+      dummy.scale.setScalar(0.55 + 0.4 * (0.5 + 0.5 * Math.sin(j * 17)));
+      dummy.updateMatrix();
+      reeds.setMatrixAt(n++, dummy.matrix);
     }
   }
+  reeds.receiveShadow = true;
+  scene.add(reeds);
   const stone = materials.stone;
   for (const r of hole.rocks) {
     const m = add(new THREE.SphereGeometry(1, 16, 10), stone, r.x, 0, r.z);

@@ -1,3 +1,4 @@
+import { containsWater } from "./water-shape.js";
 // Coordinates are local to each hole; visible obstacles and physics share this data.
 const pine = (x, z, height = 9, width = 2.5) => ({
   x,
@@ -9,10 +10,7 @@ const pine = (x, z, height = 9, width = 2.5) => ({
 const grove = (points) =>
   points.map(([x, z, h, w]) => pine(x, z, h || 9, w || 2.5));
 const pond = (x, z, rx, rz, drop) => ({ x, z, rx, rz, drop });
-const creek = (z, drop) =>
-  Array.from({ length: 13 }, (_, i) =>
-    pond((i - 6) * 4, z + Math.sin(i * 0.65) * 2.3, 3.3, 2.7, drop),
-  );
+const creek = (z, drop) => [{ kind: "creek", x: 0, z, rx: 27, rz: 5.5, drop }];
 const rock = (x, z, radius = 1.8, height = 1.3) => ({ x, z, radius, height });
 const openingTrees = [
   { x: -3.2, z: 24, height: 9, width: 2.5 },
@@ -265,11 +263,7 @@ export const course = {
 export const hole = holes[0],
   trees = hole.trees;
 export function inWater(x, z, water, margin = 0) {
-  return water.find(
-    (w) =>
-      ((x - w.x) / (w.rx + margin)) ** 2 + ((z - w.z) / (w.rz + margin)) ** 2 <=
-      1,
-  );
+  return water.find((w) => containsWater(w, x, z, margin));
 }
 export function treeRadius(tree, y) {
   let radius = 0;

@@ -19,6 +19,11 @@ export function addWoodland(parent, materials, hole) {
     materials.needles,
     count * 9,
   );
+  const sprays = new THREE.InstancedMesh(
+    new THREE.PlaneGeometry(1, 1),
+    materials.leafSprays,
+    count * 9 * 8,
+  );
   const branches = new THREE.InstancedMesh(
     new THREE.CylinderGeometry(0.09, 0.24, 1, 6),
     materials.bark,
@@ -73,8 +78,29 @@ export function addWoodland(parent, materials, hole) {
       );
       color.setHSL(0.26 + r() * 0.07, 0.28 + r() * 0.22, 0.42 + r() * 0.12);
       leaves.setColorAt(i * 9 + j, color);
+      const crown = dummy.position.clone(),
+        span = dummy.scale.clone();
+      for (let k = 0; k < 8; k++) {
+        const theta = k * 2.4,
+          yy = Math.sin(k * 1.7) * 0.7;
+        put(
+          sprays,
+          (i * 9 + j) * 8 + k,
+          crown.x + Math.cos(theta) * span.x * 0.82,
+          crown.y + yy * span.y,
+          crown.z + Math.sin(theta) * span.z * 0.82,
+          2.2,
+          2.2,
+          2.2,
+        );
+        dummy.rotation.x = Math.sin(k) * 0.7;
+        dummy.updateMatrix();
+        sprays.setMatrixAt((i * 9 + j) * 8 + k, dummy.matrix);
+      }
     }
   }
+  sprays.castShadow = sprays.receiveShadow = true;
+  scene.add(sprays);
   for (const m of [trunks, branches, leaves]) {
     m.castShadow = m.receiveShadow = true;
     scene.add(m);

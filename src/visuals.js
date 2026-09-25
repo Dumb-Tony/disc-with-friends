@@ -570,15 +570,25 @@ export function addLandscape(scene, materials) {
     );
 
   const grassGeometry = new THREE.BufferGeometry();
+  const bladeVertices = [];
+  for (let j = 0; j < 3; j++) {
+    const a = (j * Math.PI * 2) / 3,
+      co = Math.cos(a),
+      si = Math.sin(a),
+      points = [
+        [-0.018, 0],
+        [0.018, 0],
+        [0.025, 0.11],
+        [0.055, 0.22],
+      ];
+    for (const i of [0, 1, 2, 0, 2, 3]) {
+      const [x, y] = points[i];
+      bladeVertices.push(x * co, y, x * si);
+    }
+  }
   grassGeometry.setAttribute(
     "position",
-    new THREE.Float32BufferAttribute(
-      [
-        -0.023, 0, 0, 0.023, 0, 0, 0.007, 0.15, 0.018, 0, 0, -0.02, 0, 0, 0.02,
-        -0.018, 0.11, 0.006,
-      ],
-      3,
-    ),
+    new THREE.Float32BufferAttribute(bladeVertices, 3),
   );
   grassGeometry.computeVertexNormals();
   const blades = new THREE.InstancedMesh(
@@ -588,23 +598,23 @@ export function addLandscape(scene, materials) {
       roughness: 1,
       side: THREE.DoubleSide,
     }),
-    15000,
+    70000,
   );
   const color = new THREE.Color();
-  for (let i = 0; i < 15000; i++) {
+  for (let i = 0; i < 70000; i++) {
     let x = (r() - 0.5) * 120,
       z = -20 + r() * 220;
     if (Math.abs(x) < 25) {
-      if (i % 3 !== 0) x += Math.sign(x || 1) * 30;
+      if (i % 3 === 0) x += Math.sign(x || 1) * 25;
     }
     if (Math.abs(x) < 1.8 && z < 1 && z > -3.7) x += 4;
     dummy.position.set(x, 0, z);
     dummy.rotation.y = r() * Math.PI;
-    const scale = 0.3 + r() * 0.85;
-    dummy.scale.setScalar(scale);
+    const scale = (Math.abs(x) < 18 ? 0.6 : 1.2) + r() * 1.2;
+    dummy.scale.set(0.7 + scale * 0.3, scale, 0.7 + scale * 0.3);
     dummy.updateMatrix();
     blades.setMatrixAt(i, dummy.matrix);
-    color.setHSL(0.2 + r() * 0.035, 0.28 + r() * 0.15, 0.32 + r() * 0.1);
+    color.setHSL(0.28 + r() * 0.035, 0.35 + r() * 0.15, 0.29 + r() * 0.12);
     color.convertSRGBToLinear();
     blades.setColorAt(i, color);
   }

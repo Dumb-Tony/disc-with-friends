@@ -5,7 +5,10 @@ const browser = await chromium.launch({
     process.env.BROWSER_EXECUTABLE ||
     "C:/Program Files/Google/Chrome/Application/chrome.exe",
   headless: true,
-  args: ["--enable-webgl", "--use-angle=swiftshader"],
+  args: [
+    "--enable-webgl",
+    "--use-angle=" + (process.env.ANGLE_BACKEND || "swiftshader"),
+  ],
 });
 try {
   const page = await browser.newPage({
